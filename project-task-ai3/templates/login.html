@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contract Analyzer — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #05170f;
+    --bg-2: #071f14;
+    --green-1: #0f6b45;
+    --green-2: #17a75f;
+    --green-3: #34d980;
+    --green-glow: #22c76e;
+    --text: #eafff3;
+    --text-soft: #b6d9c6;
+    --line: rgba(255,255,255,0.08);
+    --panel: #0a2318;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    font-family:'Inter', sans-serif;
+    color: var(--text);
+    height:100%;
+  }
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ===== LEFT: AUTH PANEL ===== */
+  .auth{
+    width: 420px;
+    flex-shrink:0;
+    background: linear-gradient(180deg, #08201548 0%, #05170f 100%), var(--bg-2);
+    border-right: 1px solid var(--line);
+    padding: 40px 40px 40px;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    z-index:2;
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-size: 20px; font-weight:800; color:#fff;
+    margin-bottom: 56px;
+  }
+  .logo svg{ width:26px; height:26px; }
+
+  .auth-heading{
+    font-size: 14px;
+    font-weight:600;
+    color: var(--text-soft);
+    text-transform:uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 18px;
+  }
+
+  .tabs{
+    display:flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 30px;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight:600;
+    color: var(--text-soft);
+    border-radius: 9px;
+    cursor:pointer;
+    transition: all .15s ease;
+    user-select:none;
+  }
+  .tab.active{
+    background: linear-gradient(180deg, var(--green-3), var(--green-2));
+    color: #04170e;
+  }
+
+  .field{
+    margin-bottom: 20px;
+  }
+  .field label{
+    display:block;
+    font-size: 13px;
+    font-weight:600;
+    color: var(--text-soft);
+    margin-bottom: 8px;
+  }
+  .input-wrap{
+    position:relative;
+  }
+  .field input{
+    width:100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 14.5px;
+    font-family:'Inter', sans-serif;
+    color: #fff;
+    outline:none;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .field input::placeholder{ color: rgba(182,217,198,0.4); }
+  .field input:focus{
+    border-color: var(--green-3);
+    background: rgba(52,217,128,0.06);
+  }
+  .toggle-eye{
+    position:absolute;
+    right:12px; top:50%;
+    transform:translateY(-50%);
+    width:18px; height:18px;
+    color: var(--text-soft);
+    cursor:pointer;
+  }
+
+  .btn-login{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background: linear-gradient(180deg, var(--green-3), var(--green-2));
+    color:#04170e;
+    font-weight:700;
+    font-size:15px;
+    padding: 14px 0;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    box-shadow: 0 10px 24px -8px rgba(34,199,110,0.55);
+    margin-top: 6px;
+    font-family:'Inter', sans-serif;
+  }
+  .btn-login:hover{ filter:brightness(1.05); }
+
+  .auth-foot{
+    margin-top:auto;
+    padding-top: 30px;
+    font-size: 12.5px;
+    color: var(--text-soft);
+    opacity:0.65;
+    line-height:1.6;
+  }
+  .auth-foot a{ color: var(--green-3); text-decoration:none; }
+
+  /* ===== RIGHT: HERO ===== */
+  .hero{
+    position:relative;
+    flex:1;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 60px;
+    background: linear-gradient(180deg, #04140d 0%, #061a11 100%);
+  }
+
+  .orb{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .orb-1{
+    width: 620px; height:620px;
+    right: -180px; top: -220px;
+    background: radial-gradient(circle at 35% 30%, rgba(52,217,128,0.55), rgba(15,107,69,0.15) 60%, transparent 75%);
+  }
+  .orb-2{
+    width: 420px; height:420px;
+    right: -40px; top: 40px;
+    border: 1px solid rgba(52,217,128,0.35);
+    background: radial-gradient(circle at 30% 25%, rgba(23,167,95,0.55), transparent 70%);
+  }
+  .orb-3{
+    width: 260px; height:260px;
+    right: 210px; top: 210px;
+    border: 1px solid rgba(52,217,128,0.28);
+  }
+  .orb-4{
+    width: 130px; height:130px;
+    left: 60px; bottom: 90px;
+    border: 1px solid rgba(52,217,128,0.22);
+    background: radial-gradient(circle at 35% 30%, rgba(23,167,95,0.25), transparent 70%);
+  }
+  .waves{
+    position:absolute;
+    left: 20px; bottom: 30px;
+    width: 320px; height: 100px;
+    pointer-events:none;
+  }
+
+  .hero-copy{
+    position:relative; z-index:2;
+    max-width: 720px;
+    text-align:center;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size: 13px;
+    font-weight:600;
+    color: var(--green-3);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    background: rgba(52,217,128,0.08);
+    border: 1px solid rgba(52,217,128,0.25);
+    padding: 7px 14px;
+    border-radius: 999px;
+    margin-bottom: 26px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--green-3);
+    box-shadow: 0 0 8px var(--green-glow);
+  }
+  h1{
+    font-size: clamp(30px, 3.4vw, 44px);
+    font-weight:800;
+    line-height:1.18;
+    letter-spacing:-0.01em;
+    margin: 0 0 22px;
+    color:#fff;
+  }
+  h1 span{
+    background: linear-gradient(180deg, var(--green-3), var(--green-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-copy p{
+    font-size:16.5px;
+    line-height:1.7;
+    color: var(--text-soft);
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 900px){
+    .app{ flex-direction:column; }
+    .auth{ width:100%; border-right:none; border-bottom: 1px solid var(--line); }
+    .hero{ min-height: 420px; padding: 40px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LEFT: AUTH -->
+  <div class="auth">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 3v18l8-5 8 5V3a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1z" fill="url(#g)"/>
+        <defs>
+          <linearGradient id="g" x1="4" y1="2" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#34d980"/>
+            <stop offset="1" stop-color="#0f6b45"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      Contract Analyzer
+    </div>
+
+    <p class="auth-heading">Login / Register</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="setTab(this,'login')">Login</div>
+      <div class="tab" onclick="setTab(this,'register')">Register</div>
+    </div>
+
+    <div id="login-form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" placeholder="Enter your username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input id="password" type="password" placeholder="Enter your password">
+          <svg class="toggle-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" onclick="togglePw()">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+      </div>
+      <button class="btn-login">Login</button>
+    </div>
+
+    <div class="auth-foot">
+      By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+    </div>
+  </div>
+
+  <!-- RIGHT: HERO -->
+  <div class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+
+    <svg class="waves" viewBox="0 0 320 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 80 C 60 40, 120 100, 180 60 S 300 20, 320 50" stroke="rgba(52,217,128,0.35)" stroke-width="1.5"/>
+      <path d="M0 92 C 60 55, 120 110, 180 72 S 300 32, 320 62" stroke="rgba(52,217,128,0.22)" stroke-width="1.5"/>
+      <path d="M0 100 C 60 68, 120 118, 180 84 S 300 44, 320 74" stroke="rgba(52,217,128,0.14)" stroke-width="1.5"/>
+    </svg>
+
+    <div class="hero-copy">
+      <div class="eyebrow">AI-Powered</div>
+      <h1>Welcome to the <span>Contract &amp; Legal<br>Document Risk Analyzer</span></h1>
+      <p>Please login or register to continue. Once you're in, upload any agreement and we'll flag termination windows, auto-renewals, and liability exposure in seconds.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function setTab(el, mode){
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelector('.btn-login').textContent = mode === 'login' ? 'Login' : 'Create account';
+    document.querySelector('.auth-heading').textContent = mode === 'login' ? 'Login / Register' : 'Login / Register';
+  }
+  function togglePw(){
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+</script>
+</body>
+</html>
