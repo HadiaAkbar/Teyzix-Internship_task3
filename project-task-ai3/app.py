@@ -242,7 +242,7 @@ with st.sidebar:
                 else:
                     st.error("Username already exists")
     else:
-        st.write(f"Welcome, {st.session_state[\"username\"]} ({st.session_state[\"user_role\"]})")
+        st.write(f"Welcome, {st.session_state['username']} ({st.session_state['user_role']})")
         choice = st.selectbox("WORKSPACE", ["Document Analysis", "Semantic Search", "Dashboard", "Admin Panel"])
         if st.button("Logout"):
             logout_user()
@@ -284,10 +284,10 @@ if st.session_state["logged_in"]:
                         st.success("Analysis complete!")
                         
                         st.subheader("Analysis Results")
-                        st.markdown(f"<div class=\"neu-panel panel-blue\">{analysis_result}</div>", unsafe_allow_html=True)
+                        st.markdown(f'<div class="neu-panel panel-blue">{analysis_result}</div>', unsafe_allow_html=True)
                         
                         st.subheader("Executive Summary")
-                        st.markdown(f"<div class=\"neu-panel panel-purple\">{summary_result}</div>", unsafe_allow_html=True)
+                        st.markdown(f'<div class="neu-panel panel-purple">{summary_result}</div>', unsafe_allow_html=True)
 
             except Exception as e:
                 st.error(f"Error processing document: {e}")
@@ -311,7 +311,7 @@ if st.session_state["logged_in"]:
                     search_results = ai_analyzer.semantic_search(doc.content, user_query)
                     if search_results:
                         st.markdown(f"**Document: {doc.filename}**")
-                        st.markdown(f"<div class=\"neu-panel panel-blue\">{search_results}</div>", unsafe_allow_html=True)
+                        st.markdown(f'<div class="neu-panel panel-blue">{search_results}</div>', unsafe_allow_html=True)
                     else:
                         st.info(f"No relevant information found in {doc.filename} for your query.")
 
@@ -324,9 +324,9 @@ if st.session_state["logged_in"]:
         avg_risk_score = sum([doc.risk_score for doc in user_docs]) / total_docs if total_docs > 0 else 0
         high_risk_docs = [doc.filename for doc in user_docs if doc.risk_score > 0.7] # Example threshold
 
-        st.markdown(f"<div class=\"metric-card\"><p class=\"metric-label\">Total Documents</p><p class=\"metric-value\">{total_docs}</p></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class=\"metric-card\"><p class=\"metric-label\">Average Risk Score</p><p class=\"metric-value\">{avg_risk_score:.2f}</p></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class=\"metric-card\"><p class=\"metric-label\">High Risk Documents</p><p class=\"metric-value\">{len(high_risk_docs)}</p></div>", unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><p class="metric-label">Total Documents</p><p class="metric-value">{total_docs}</p></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><p class="metric-label">Average Risk Score</p><p class="metric-value">{avg_risk_score:.2f}</p></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><p class="metric-label">High Risk Documents</p><p class="metric-value">{len(high_risk_docs)}</p></div>', unsafe_allow_html=True)
 
         if high_risk_docs:
             st.subheader("High Risk Documents")
@@ -335,7 +335,7 @@ if st.session_state["logged_in"]:
 
         st.subheader("Processing History")
         for doc in user_docs:
-            with st.expander(f"Document: {doc.filename} (Uploaded: {doc.upload_date.strftime(\"%Y-%m-%d %H:%M\")})"):
+            with st.expander(f"Document: {doc.filename} (Uploaded: {doc.upload_date.strftime('%Y-%m-%d %H:%M')})"):
                 st.json({
                     "Contract Type": doc.contract_type,
                     "Risk Score": doc.risk_score,
