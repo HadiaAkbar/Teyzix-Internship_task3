@@ -1,12 +1,13 @@
 import streamlit as st
 import os
 import datetime
+import textwrap
 from summarizer import read_file, generate_txt_bytes, generate_pdf_bytes, generate_combined_txt_bytes, generate_pdf_bytes_multi
 from ai_analyzer import AIAnalyzer
 from database import SessionLocal, User, Document, get_db
 from sqlalchemy.orm import Session
 
-# BUILD VERSION: 2026-07-07_v6.0 - SCREENSHOT ACCURACY
+# BUILD VERSION: 2026-07-07_v7.0 - RENDER FIX
 
 st.set_page_config(
     page_title="Contract Analyzer AI",
@@ -20,239 +21,239 @@ if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
 # --- CSS OVERRIDES ---
-nuclear_css = """
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+nuclear_css = textwrap.dedent("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    /* HIDE DEFAULT ELEMENTS */
-    header, [data-testid="stSidebar"], [data-testid="stToolbar"], [data-testid="stDecoration"] {
-        display: none !important;
-    }
+        /* HIDE DEFAULT ELEMENTS */
+        header, [data-testid="stSidebar"], [data-testid="stToolbar"], [data-testid="stDecoration"] {
+            display: none !important;
+        }
 
-    /* FORCE FULL SCREEN */
-    .main .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
-    
-    .stApp {
-        background-color: #05170f !important;
-        color: #eafff3 !important;
-        font-family: 'Inter', sans-serif !important;
-    }
+        /* FORCE FULL SCREEN */
+        .main .block-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        
+        .stApp {
+            background-color: #05170f !important;
+            color: #eafff3 !important;
+            font-family: 'Inter', sans-serif !important;
+        }
 
-    /* AUTH LAYOUT ENGINE */
-    .nuclear-auth-container {
-        display: flex;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        background: #05170f;
-    }
+        /* AUTH LAYOUT ENGINE */
+        .nuclear-auth-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #05170f;
+        }
 
-    .nuclear-left {
-        width: 450px;
-        background: #061a11;
-        border-right: 1px solid rgba(255,255,255,0.05);
-        padding: 60px 50px;
-        display: flex;
-        flex-direction: column;
-        z-index: 100;
-        position: relative;
-    }
+        .nuclear-left {
+            width: 450px;
+            background: #061a11;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            position: relative;
+        }
 
-    .nuclear-right {
-        flex: 1;
-        background: #020c08;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-    }
+        .nuclear-right {
+            flex: 1;
+            background: #020c08;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-    /* BACKGROUND EFFECTS */
-    .orb {
-        position: absolute;
-        border-radius: 50%;
-        pointer-events: none;
-    }
-    .orb-1 {
-        width: 800px; height: 800px;
-        right: -200px; top: -200px;
-        background: radial-gradient(circle, rgba(52,217,128,0.15) 0%, transparent 70%);
-    }
-    .orb-2 {
-        width: 600px; height: 600px;
-        right: 10%; top: 10%;
-        background: radial-gradient(circle, rgba(23,167,95,0.1) 0%, transparent 70%);
-    }
-    .circle-line {
-        position: absolute;
-        border: 1px solid rgba(52,217,128,0.1);
-        border-radius: 50%;
-        pointer-events: none;
-    }
+        /* BACKGROUND EFFECTS */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .orb-1 {
+            width: 800px; height: 800px;
+            right: -200px; top: -200px;
+            background: radial-gradient(circle, rgba(52,217,128,0.15) 0%, transparent 70%);
+        }
+        .orb-2 {
+            width: 600px; height: 600px;
+            right: 10%; top: 10%;
+            background: radial-gradient(circle, rgba(23,167,95,0.1) 0%, transparent 70%);
+        }
+        .circle-line {
+            position: absolute;
+            border: 1px solid rgba(52,217,128,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
 
-    /* LOGO & TITLES */
-    .logo-v2 {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 22px;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 60px;
-    }
+        /* LOGO & TITLES */
+        .logo-v2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 60px;
+        }
 
-    .section-label {
-        font-size: 14px;
-        font-weight: 700;
-        color: #b6d9c6;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 25px;
-    }
+        .section-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #b6d9c6;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 25px;
+        }
 
-    .hero-v2 {
-        text-align: center;
-        max-width: 800px;
-        z-index: 10;
-        padding: 40px;
-    }
+        .hero-v2 {
+            text-align: center;
+            max-width: 800px;
+            z-index: 10;
+            padding: 40px;
+        }
 
-    .pill-v2 {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12px;
-        font-weight: 700;
-        color: #34d980;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        background: rgba(52,217,128,0.1);
-        border: 1px solid rgba(52,217,128,0.2);
-        padding: 6px 16px;
-        border-radius: 20px;
-        margin-bottom: 30px;
-    }
-    .pill-v2::before {
-        content: '';
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        background: #34d980;
-        box-shadow: 0 0 10px #34d980;
-    }
+        .pill-v2 {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #34d980;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: rgba(52,217,128,0.1);
+            border: 1px solid rgba(52,217,128,0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .pill-v2::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #34d980;
+            box-shadow: 0 0 10px #34d980;
+        }
 
-    h1.v2-title {
-        font-size: 48px;
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 30px;
-        color: #fff;
-    }
+        h1.v2-title {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            color: #fff;
+        }
 
-    h1.v2-title span {
-        color: #34d980;
-    }
+        h1.v2-title span {
+            color: #34d980;
+        }
 
-    .hero-v2 p {
-        font-size: 18px;
-        line-height: 1.6;
-        color: #b6d9c6;
-        max-width: 600px;
-        margin: 0 auto;
-    }
+        .hero-v2 p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #b6d9c6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-    /* STREAMLIT WIDGET STYLING */
-    .stButton button {
-        width: 100% !important;
-        background: linear-gradient(90deg, #34d980, #17a75f) !important;
-        color: #05170f !important;
-        font-weight: 700 !important;
-        font-size: 16px !important;
-        padding: 12px 0 !important;
-        border: none !important;
-        border-radius: 8px !important;
-        margin-top: 20px !important;
-        transition: transform 0.1s ease !important;
-    }
-    .stButton button:hover {
-        transform: scale(1.01) !important;
-    }
+        /* STREAMLIT WIDGET STYLING */
+        .stButton button {
+            width: 100% !important;
+            background: linear-gradient(90deg, #34d980, #17a75f) !important;
+            color: #05170f !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            padding: 12px 0 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            margin-top: 20px !important;
+            transition: transform 0.1s ease !important;
+        }
+        .stButton button:hover {
+            transform: scale(1.01) !important;
+        }
 
-    /* Input styling */
-    div[data-baseweb="input"] {
-        background-color: #0d251a !important;
-        border: 1px solid #1a3a2a !important;
-        border-radius: 8px !important;
-        padding: 4px 8px !important;
-    }
-    
-    input {
-        color: #fff !important;
-    }
-    
-    label {
-        color: #b6d9c6 !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-        margin-bottom: 8px !important;
-    }
+        /* Input styling */
+        div[data-baseweb="input"] {
+            background-color: #0d251a !important;
+            border: 1px solid #1a3a2a !important;
+            border-radius: 8px !important;
+            padding: 4px 8px !important;
+        }
+        
+        input {
+            color: #fff !important;
+        }
+        
+        label {
+            color: #b6d9c6 !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            margin-bottom: 8px !important;
+        }
 
-    /* Radio tabs as buttons */
-    div[data-testid="stRadio"] > div {
-        display: flex !important;
-        background: #0d251a !important;
-        border: 1px solid #1a3a2a !important;
-        border-radius: 8px !important;
-        padding: 4px !important;
-        margin-bottom: 30px !important;
-    }
-    div[data-testid="stRadio"] label {
-        flex: 1 !important;
-        text-align: center !important;
-        padding: 8px 0 !important;
-        margin: 0 !important;
-        border-radius: 6px !important;
-        color: #b6d9c6 !important;
-        font-weight: 600 !important;
-        cursor: pointer !important;
-        background: transparent !important;
-    }
-    div[data-testid="stRadio"] label[data-selected="true"] {
-        background: linear-gradient(90deg, #34d980, #17a75f) !important;
-        color: #05170f !important;
-    }
-    div[data-testid="stRadio"] input {
-        display: none !important;
-    }
+        /* Radio tabs as buttons */
+        div[data-testid="stRadio"] > div {
+            display: flex !important;
+            background: #0d251a !important;
+            border: 1px solid #1a3a2a !important;
+            border-radius: 8px !important;
+            padding: 4px !important;
+            margin-bottom: 30px !important;
+        }
+        div[data-testid="stRadio"] label {
+            flex: 1 !important;
+            text-align: center !important;
+            padding: 8px 0 !important;
+            margin: 0 !important;
+            border-radius: 6px !important;
+            color: #b6d9c6 !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            background: transparent !important;
+        }
+        div[data-testid="stRadio"] label[data-selected="true"] {
+            background: linear-gradient(90deg, #34d980, #17a75f) !important;
+            color: #05170f !important;
+        }
+        div[data-testid="stRadio"] input {
+            display: none !important;
+        }
 
-    .auth-footer {
-        margin-top: auto;
-        font-size: 13px;
-        color: #b6d9c6;
-        opacity: 0.8;
-    }
-    .auth-footer a {
-        color: #34d980;
-        text-decoration: none;
-    }
+        .auth-footer {
+            margin-top: auto;
+            font-size: 13px;
+            color: #b6d9c6;
+            opacity: 0.8;
+        }
+        .auth-footer a {
+            color: #34d980;
+            text-decoration: none;
+        }
 
-    /* Waves styling */
-    .waves-container {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 150px;
-        opacity: 0.3;
-        pointer-events: none;
-    }
-</style>
-"""
+        /* Waves styling */
+        .waves-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+""")
 
 # --- Auth Functions ---
 def authenticate_user(username, password):
@@ -281,44 +282,45 @@ if not st.session_state["logged_in"]:
     st.markdown(nuclear_css, unsafe_allow_html=True)
     
     # Layout Structure
-    st.markdown(f"""
-    <div class="nuclear-auth-container">
-        <div class="nuclear-left">
-            <div class="logo-v2">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" fill="#34d980"/>
-                </svg>
-                Contract Analyzer
-            </div>
-            <div class="section-label">LOGIN / REGISTER</div>
-            
-            <!-- Form space managed by Streamlit below -->
-            <div id="form-container" style="min-height: 400px;"></div>
+    auth_layout = textwrap.dedent(f"""
+        <div class="nuclear-auth-container">
+            <div class="nuclear-left">
+                <div class="logo-v2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" fill="#34d980"/>
+                    </svg>
+                    Contract Analyzer
+                </div>
+                <div class="section-label">LOGIN / REGISTER</div>
+                
+                <!-- Form space managed by Streamlit below -->
+                <div id="form-container" style="min-height: 400px;"></div>
 
-            <div class="auth-footer">
-                By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+                <div class="auth-footer">
+                    By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+                </div>
+            </div>
+            <div class="nuclear-right">
+                <div class="orb orb-1"></div>
+                <div class="orb orb-2"></div>
+                <div class="circle-line" style="width: 500px; height: 500px; right: 5%; top: 5%;"></div>
+                <div class="circle-line" style="width: 700px; height: 700px; right: -5%; top: -5%;"></div>
+                
+                <div class="hero-v2">
+                    <div class="pill-v2">AI-POWERED</div>
+                    <h1 class="v2-title">Welcome to the <span>Contract & Legal<br>Document Risk Analyzer</span></h1>
+                    <p>Please login or register to continue. Once you're in, upload any agreement and we'll flag termination windows, auto-renewals, and liability exposure in seconds.</p>
+                </div>
+                
+                <div class="waves-container">
+                    <svg viewBox="0 0 1440 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 160L48 176C96 192 192 224 288 224C384 224 480 192 576 165.3C672 139 768 117 864 128C960 139 1056 181 1152 192C1248 203 1344 181 1392 170.7L1440 160V320H1392C1344 320 1248 320 1152 320C1056 320 960 320 864 320C768 320 672 320 576 320C480 320 384 320 288 320C192 320 96 320 48 320H0V160Z" fill="#34d980" fill-opacity="0.05"/>
+                    </svg>
+                </div>
             </div>
         </div>
-        <div class="nuclear-right">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
-            <div class="circle-line" style="width: 500px; height: 500px; right: 5%; top: 5%;"></div>
-            <div class="circle-line" style="width: 700px; height: 700px; right: -5%; top: -5%;"></div>
-            
-            <div class="hero-v2">
-                <div class="pill-v2">AI-POWERED</div>
-                <h1 class="v2-title">Welcome to the <span>Contract & Legal<br>Document Risk Analyzer</span></h1>
-                <p>Please login or register to continue. Once you're in, upload any agreement and we'll flag termination windows, auto-renewals, and liability exposure in seconds.</p>
-            </div>
-            
-            <div class="waves-container">
-                <svg viewBox="0 0 1440 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0 160L48 176C96 192 192 224 288 224C384 224 480 192 576 165.3C672 139 768 117 864 128C960 139 1056 181 1152 192C1248 203 1344 181 1392 170.7L1440 160V320H1392C1344 320 1248 320 1152 320C1056 320 960 320 864 320C768 320 672 320 576 320C480 320 384 320 288 320C192 320 96 320 48 320H0V160Z" fill="#34d980" fill-opacity="0.05"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    """)
+    st.markdown(auth_layout, unsafe_allow_html=True)
 
     # Inject Streamlit widgets into the left panel
     with st.container():
