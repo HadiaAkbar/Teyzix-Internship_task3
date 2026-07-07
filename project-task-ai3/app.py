@@ -23,65 +23,60 @@ st.markdown("""
     @import url(\'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap\');
     
     :root {
-        --bg-color: #E8F5E9;
-        --text-color: #2E7D32;
-        --text-light: #66BB6A;
-        --shadow-light: #FFFFFF;
-        --shadow-dark: #B9C6BA;
-        --pastel-green: #C8E6C9;
-        --pastel-mint: #E1F5FE;
+        --bg-color: #0B1120; /* Deep Dark Navy/Green Background */
+        --card-bg: #111827; /* Darker Card Background */
+        --text-color: #F9FAFB; /* Off-white text */
+        --text-light: #9CA3AF; /* Muted grey text */
+        --accent-color: #10B981; /* Emerald Green Accent */
+        --accent-hover: #059669; /* Darker Emerald for hover */
+        --border-color: #1F2937;
     }
 
     html, body, [class*="css"] {
         font-family: \'Poppins\', sans-serif;
         color: var(--text-color);
-        background-color: var(--bg-color);
+        background-color: var(--bg-color) !important;
     }
 
-    /* Neumorphic Container */
+    /* Modern Dark Card */
     .neu-container {
-        background-color: var(--bg-color);
-        border-radius: 50px;
-        box-shadow: 20px 20px 60px var(--shadow-dark), 
-                   -20px -20px 60px var(--shadow-light);
-        padding: 3rem;
-        margin-bottom: 3rem;
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
     }
 
-    /* Neumorphic Inset */
+    /* Modern Dark Inset */
     .neu-inset {
-        background-color: var(--bg-color);
-        border-radius: 30px;
-        box-shadow: inset 8px 8px 16px var(--shadow-dark), 
-                    inset -8px -8px 16px var(--shadow-light);
-        padding: 2rem;
+        background-color: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
     }
 
-    /* Neumorphic Button */
+    /* Modern Accent Button */
     .stButton>button {
         width: 100%;
-        border-radius: 20px;
-        padding: 1rem 2rem;
-        background-color: var(--bg-color);
-        color: var(--text-color);
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        background-color: var(--accent-color);
+        color: white;
         font-weight: 600;
         border: none;
-        box-shadow: 6px 6px 12px var(--shadow-dark), 
-                    -6px -6px 12px var(--shadow-light);
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
     }
 
     .stButton>button:hover {
-        box-shadow: 2px 2px 5px var(--shadow-dark), 
-                    -2px -2px 5px var(--shadow-light);
-        transform: translateY(1px);
-        color: #2D3748;
+        background-color: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+        color: white;
     }
 
     .stButton>button:active {
-        box-shadow: inset 4px 4px 8px var(--shadow-dark), 
-                    inset -4px -4px 8px var(--shadow-light);
+        transform: translateY(0);
     }
 
     /* Header Styling */
@@ -92,75 +87,77 @@ st.markdown("""
 
     .header-section h1 {
         font-weight: 800;
-        font-size: 4.5rem;
-        color: var(--text-color);
-        letter-spacing: -2px;
-        margin-bottom: 0.5rem;
+        font-size: 3.5rem;
+        color: white;
+        letter-spacing: -1px;
+        margin-bottom: 1rem;
     }
 
     .tagline {
         font-weight: 400;
-        font-size: 1.1rem;
+        font-size: 1.25rem;
         color: var(--text-light);
-        letter-spacing: 1px;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     /* Sidebar Branding */
     [data-testid="stSidebar"] {
-        background-color: var(--bg-color) !important;
-        border-right: none;
+        background-color: #0F172A !important;
+        border-right: 1px solid var(--border-color);
     }
 
     .sidebar-logo {
         font-weight: 800;
-        font-size: 1.8rem;
-        color: var(--text-color);
+        font-size: 1.5rem;
+        color: white;
         margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    /* Neumorphic Tabs */
+    /* Modern Tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 20px;
+        gap: 8px;
         background-color: transparent;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .stTabs [data-baseweb="tab"] {
-        background-color: var(--bg-color);
-        border-radius: 15px;
-        padding: 10px 25px;
+        background-color: transparent;
+        border-radius: 8px 8px 0 0;
+        padding: 12px 24px;
         color: var(--text-light);
         font-weight: 500;
-        box-shadow: 4px 4px 8px var(--shadow-dark), 
-                    -4px -4px 8px var(--shadow-light);
         border: none;
-        margin-bottom: 10px;
     }
 
     .stTabs [aria-selected="true"] {
-        box-shadow: inset 4px 4px 8px var(--shadow-dark), 
-                    inset -4px -4px 8px var(--shadow-light) !important;
-        color: var(--text-color) !important;
+        background-color: rgba(16, 185, 129, 0.1) !important;
+        color: var(--accent-color) !important;
+        border-bottom: 2px solid var(--accent-color) !important;
     }
 
-    /* Result Panels */
+    /* Modern Result Panels */
     .neu-panel {
-        border-radius: 25px;
-        padding: 2rem;
+        border-radius: 12px;
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
-        line-height: 1.7;
+        line-height: 1.6;
+        border: 1px solid var(--border-color);
     }
 
-    .panel-green { background-color: var(--pastel-green); box-shadow: inset 4px 4px 8px #A5D6A7, inset -4px -4px 8px #FFFFFF; }
-    .panel-mint { background-color: var(--pastel-mint); box-shadow: inset 4px 4px 8px #B3E5FC, inset -4px -4px 8px #FFFFFF; }
+    .panel-green { background-color: rgba(16, 185, 129, 0.05); border-left: 4px solid var(--accent-color); }
+    .panel-mint { background-color: rgba(59, 130, 246, 0.05); border-left: 4px solid #3B82F6; }
 
-    /* Neumorphic Metrics */
+    /* Modern Metrics */
     .metric-card {
-        background-color: var(--bg-color);
-        padding: 2rem;
-        border-radius: 30px;
+        background-color: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 12px;
         text-align: center;
-        box-shadow: 10px 10px 20px var(--shadow-dark), 
-                    -10px -10px 20px var(--shadow-light);
+        border: 1px solid var(--border-color);
     }
 
     .metric-label {
