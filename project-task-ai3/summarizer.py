@@ -43,7 +43,7 @@ def generate_txt_bytes(text: str) -> bytes:
 def generate_combined_txt_bytes(sections: List[Tuple[str, str]]) -> bytes:
     parts: List[str] = []
     for title, text in sections:
-        parts.append(f"{\'=\' * 10} {title} {\'=\' * 10}\n{text}\n")
+        parts.append(f"{'=' * 10} {title} {'=' * 10}\n{text}\n")
     return "\n".join(parts).encode("utf-8")
 
 def _draw_wrapped_text(c: Any, text: str, y: float, width: float, height: float, margin: float, font_name: str = "Helvetica", font_size: int = 11, line_height: int = 16) -> float:
