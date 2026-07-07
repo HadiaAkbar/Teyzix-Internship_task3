@@ -1,14 +1,12 @@
-
 import streamlit as st
 import os
 import datetime
-import re
 from summarizer import read_file, generate_txt_bytes, generate_pdf_bytes, generate_combined_txt_bytes, generate_pdf_bytes_multi
 from ai_analyzer import AIAnalyzer
 from database import SessionLocal, User, Document, get_db
 from sqlalchemy.orm import Session
 
-# BUILD VERSION: 2026-07-07_v9.0 - ZERO INDENT RENDER
+# BUILD VERSION: 2026-07-07_v10.0 - FLATTENED RENDER
 
 st.set_page_config(
     page_title="Contract Analyzer AI",
@@ -21,208 +19,42 @@ st.set_page_config(
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# Helper to completely strip all leading whitespace from every line
-def clean_html(raw_html):
-    return "\n".join([line.strip() for line in raw_html.strip().split("\n")])
-
-# --- CSS OVERRIDES ---
-css_raw = """
+# --- UI CONTENT ---
+# We combine everything into a single string with NO leading spaces on any line.
+# This is the nuclear option to prevent Streamlit's markdown parser from triggering.
+ui_html = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-header, [data-testid="stSidebar"], [data-testid="stToolbar"], [data-testid="stDecoration"] {
-display: none !important;
-}
-.main .block-container {
-padding: 0 !important;
-margin: 0 !important;
-max-width: 100% !important;
-width: 100% !important;
-}
-.stApp {
-background-color: #05170f !important;
-color: #eafff3 !important;
-font-family: 'Inter', sans-serif !important;
-}
-.nuclear-auth-container {
-display: flex;
-width: 100vw;
-height: 100vh;
-overflow: hidden;
-background: #05170f;
-}
-.nuclear-left {
-width: 450px;
-background: #061a11;
-border-right: 1px solid rgba(255,255,255,0.05);
-padding: 60px 50px;
-display: flex;
-flex-direction: column;
-z-index: 100;
-position: relative;
-}
-.nuclear-right {
-flex: 1;
-background: #020c08;
-display: flex;
-align-items: center;
-justify-content: center;
-position: relative;
-overflow: hidden;
-}
-.orb {
-position: absolute;
-border-radius: 50%;
-pointer-events: none;
-}
-.orb-1 {
-width: 800px; height: 800px;
-right: -200px; top: -200px;
-background: radial-gradient(circle, rgba(52,217,128,0.15) 0%, transparent 70%);
-}
-.orb-2 {
-width: 600px; height: 600px;
-right: 10%; top: 10%;
-background: radial-gradient(circle, rgba(23,167,95,0.1) 0%, transparent 70%);
-}
-.circle-line {
-position: absolute;
-border: 1px solid rgba(52,217,128,0.1);
-border-radius: 50%;
-pointer-events: none;
-}
-.logo-v2 {
-display: flex;
-align-items: center;
-gap: 12px;
-font-size: 22px;
-font-weight: 700;
-color: #fff;
-margin-bottom: 60px;
-}
-.section-label {
-font-size: 14px;
-font-weight: 700;
-color: #b6d9c6;
-text-transform: uppercase;
-letter-spacing: 0.1em;
-margin-bottom: 25px;
-}
-.hero-v2 {
-text-align: center;
-max-width: 800px;
-z-index: 10;
-padding: 40px;
-}
-.pill-v2 {
-display: inline-flex;
-align-items: center;
-gap: 8px;
-font-size: 12px;
-font-weight: 700;
-color: #34d980;
-text-transform: uppercase;
-letter-spacing: 0.1em;
-background: rgba(52,217,128,0.1);
-border: 1px solid rgba(52,217,128,0.2);
-padding: 6px 16px;
-border-radius: 20px;
-margin-bottom: 30px;
-}
-.pill-v2::before {
-content: '';
-width: 6px; height: 6px;
-border-radius: 50%;
-background: #34d980;
-box-shadow: 0 0 10px #34d980;
-}
-h1.v2-title {
-font-size: 48px;
-font-weight: 800;
-line-height: 1.1;
-margin-bottom: 30px;
-color: #fff;
-}
-h1.v2-title span {
-color: #34d980;
-}
-.hero-v2 p {
-font-size: 18px;
-line-height: 1.6;
-color: #b6d9c6;
-max-width: 600px;
-margin: 0 auto;
-}
-.stButton button {
-width: 100% !important;
-background: linear-gradient(90deg, #34d980, #17a75f) !important;
-color: #05170f !important;
-font-weight: 700 !important;
-font-size: 16px !important;
-padding: 12px 0 !important;
-border: none !important;
-border-radius: 8px !important;
-margin-top: 20px !important;
-}
-div[data-baseweb="input"] {
-background-color: #0d251a !important;
-border: 1px solid #1a3a2a !important;
-border-radius: 8px !important;
-}
-input {
-color: #fff !important;
-}
-label {
-color: #b6d9c6 !important;
-font-size: 14px !important;
-font-weight: 500 !important;
-}
-div[data-testid="stRadio"] > div {
-display: flex !important;
-background: #0d251a !important;
-border: 1px solid #1a3a2a !important;
-border-radius: 8px !important;
-padding: 4px !important;
-margin-bottom: 30px !important;
-}
-div[data-testid="stRadio"] label {
-flex: 1 !important;
-text-align: center !important;
-padding: 8px 0 !important;
-border-radius: 6px !important;
-color: #b6d9c6 !important;
-font-weight: 600 !important;
-background: transparent !important;
-}
-div[data-testid="stRadio"] label[data-selected="true"] {
-background: linear-gradient(90deg, #34d980, #17a75f) !important;
-color: #05170f !important;
-}
-div[data-testid="stRadio"] input {
-display: none !important;
-}
-.auth-footer {
-margin-top: auto;
-font-size: 13px;
-color: #b6d9c6;
-opacity: 0.8;
-}
-.auth-footer a {
-color: #34d980;
-text-decoration: none;
-}
-.waves-container {
-position: absolute;
-bottom: 0;
-left: 0;
-width: 100%;
-height: 150px;
-opacity: 0.3;
-pointer-events: none;
-}
+header, [data-testid="stSidebar"], [data-testid="stToolbar"], [data-testid="stDecoration"] {display: none !important;}
+.main .block-container {padding: 0 !important; margin: 0 !important; max-width: 100% !important; width: 100% !important;}
+.stApp {background-color: #05170f !important; color: #eafff3 !important; font-family: 'Inter', sans-serif !important;}
+.nuclear-auth-container {display: flex; width: 100vw; height: 100vh; overflow: hidden; background: #05170f;}
+.nuclear-left {width: 450px; background: #061a11; border-right: 1px solid rgba(255,255,255,0.05); padding: 60px 50px; display: flex; flex-direction: column; z-index: 100; position: relative;}
+.nuclear-right {flex: 1; background: #020c08; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;}
+.orb {position: absolute; border-radius: 50%; pointer-events: none;}
+.orb-1 {width: 800px; height: 800px; right: -200px; top: -200px; background: radial-gradient(circle, rgba(52,217,128,0.15) 0%, transparent 70%);}
+.orb-2 {width: 600px; height: 600px; right: 10%; top: 10%; background: radial-gradient(circle, rgba(23,167,95,0.1) 0%, transparent 70%);}
+.circle-line {position: absolute; border: 1px solid rgba(52,217,128,0.1); border-radius: 50%; pointer-events: none;}
+.logo-v2 {display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 60px;}
+.section-label {font-size: 14px; font-weight: 700; color: #b6d9c6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 25px;}
+.hero-v2 {text-align: center; max-width: 800px; z-index: 10; padding: 40px;}
+.pill-v2 {display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #34d980; text-transform: uppercase; letter-spacing: 0.1em; background: rgba(52,217,128,0.1); border: 1px solid rgba(52,217,128,0.2); padding: 6px 16px; border-radius: 20px; margin-bottom: 30px;}
+.pill-v2::before {content: ''; width: 6px; height: 6px; border-radius: 50%; background: #34d980; box-shadow: 0 0 10px #34d980;}
+h1.v2-title {font-size: 48px; font-weight: 800; line-height: 1.1; margin-bottom: 30px; color: #fff;}
+h1.v2-title span {color: #34d980;}
+.hero-v2 p {font-size: 18px; line-height: 1.6; color: #b6d9c6; max-width: 600px; margin: 0 auto;}
+.stButton button {width: 100% !important; background: linear-gradient(90deg, #34d980, #17a75f) !important; color: #05170f !important; font-weight: 700 !important; font-size: 16px !important; padding: 12px 0 !important; border: none !important; border-radius: 8px !important; margin-top: 20px !important;}
+div[data-baseweb="input"] {background-color: #0d251a !important; border: 1px solid #1a3a2a !important; border-radius: 8px !important;}
+input {color: #fff !important;}
+label {color: #b6d9c6 !important; font-size: 14px !important; font-weight: 500 !important;}
+div[data-testid="stRadio"] > div {display: flex !important; background: #0d251a !important; border: 1px solid #1a3a2a !important; border-radius: 8px !important; padding: 4px !important; margin-bottom: 30px !important;}
+div[data-testid="stRadio"] label {flex: 1 !important; text-align: center !important; padding: 8px 0 !important; border-radius: 6px !important; color: #b6d9c6 !important; font-weight: 600 !important; background: transparent !important;}
+div[data-testid="stRadio"] label[data-selected="true"] {background: linear-gradient(90deg, #34d980, #17a75f) !important; color: #05170f !important;}
+div[data-testid="stRadio"] input {display: none !important;}
+.auth-footer {margin-top: auto; font-size: 13px; color: #b6d9c6; opacity: 0.8;}
+.auth-footer a {color: #34d980; text-decoration: none;}
+.waves-container {position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; opacity: 0.3; pointer-events: none;}
 </style>
-"""
-
-html_raw = """
 <div class="nuclear-auth-container">
 <div class="nuclear-left">
 <div class="logo-v2">
@@ -254,7 +86,7 @@ By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Pol
 </div>
 </div>
 </div>
-"""
+""".strip()
 
 # --- Auth Functions ---
 def authenticate_user(username, password):
@@ -280,9 +112,8 @@ def register_user(username, password):
 
 # --- Main Logic ---
 if not st.session_state["logged_in"]:
-    # Apply cleaned strings
-    st.markdown(clean_html(css_raw), unsafe_allow_html=True)
-    st.markdown(clean_html(html_raw), unsafe_allow_html=True)
+    # Single markdown call with flattened string
+    st.markdown(ui_html, unsafe_allow_html=True)
 
     # Inject Streamlit widgets into the left panel
     with st.container():
