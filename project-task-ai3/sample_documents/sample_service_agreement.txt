@@ -1,0 +1,86 @@
+SERVICE AGREEMENT
+
+This Service Agreement (hereinafter referred to as the "Agreement") is entered into as of July 1, 2026, by and between CloudSolutions Corp., a corporation organized and existing under the laws of the State of New York (hereinafter referred to as the "Service Provider"), and RetailChain Inc., a corporation organized and existing under the laws of the State of Texas (hereinafter referred to as the "Client").
+
+WHEREAS, the Service Provider desires to provide certain services to the Client; and
+
+WHEREAS, the Client desires to engage the Service Provider to provide such services under the terms and conditions set forth herein.
+
+NOW, THEREFORE, in consideration of the mutual covenants and agreements contained herein, the parties agree as follows:
+
+1. SCOPE OF SERVICES
+The Service Provider agrees to provide the following services (hereinafter referred to as the "Services"):
+a) Cloud infrastructure management and maintenance
+b) 24/7 technical support and monitoring
+c) Regular system backups and disaster recovery planning
+d) Security updates and patch management
+e) Performance optimization and reporting
+
+2. TERM
+This Agreement shall commence on July 1, 2026, and shall continue for a period of one (1) year, unless earlier terminated by either party in accordance with the provisions of Section 8. Upon expiration, this Agreement shall automatically renew for successive one-year periods unless either party provides written notice of non-renewal at least ninety (90) days prior to the expiration date.
+
+3. PAYMENT TERMS
+a) The Client agrees to pay the Service Provider a monthly fee of $5,000.00 for the Services provided.
+b) Invoices shall be issued on the first day of each month and payment shall be due within thirty (30) days of invoice date.
+c) Late payments shall accrue interest at the rate of 1.5% per month or the maximum rate allowed by law, whichever is less.
+d) All fees are exclusive of applicable sales taxes, which shall be borne by the Client.
+
+4. SERVICE LEVEL AGREEMENT (SLA)
+a) The Service Provider shall maintain a system uptime of at least 99.5% per month, measured from 12:00 AM to 11:59 PM Eastern Time.
+b) Scheduled maintenance windows, not to exceed 4 hours per month, shall be excluded from uptime calculations.
+c) In the event of failure to meet the SLA, the Client shall be entitled to service credits as follows:
+   - 99.0% to 99.4% uptime: 5% monthly fee credit
+   - 98.0% to 98.9% uptime: 10% monthly fee credit
+   - Below 98.0% uptime: 25% monthly fee credit
+
+5. RESPONSIBILITIES
+a) Service Provider Responsibilities:
+   i) Provide timely and professional Services as described in Section 1
+   ii) Maintain appropriate security measures to protect Client data
+   iii) Provide monthly performance reports
+   iv) Respond to support requests within 4 business hours for critical issues
+
+b) Client Responsibilities:
+   i) Provide accurate information necessary for Service delivery
+   ii) Maintain appropriate access controls and user management
+   iii) Pay all fees in accordance with Section 3
+   iv) Notify Service Provider of any issues or concerns within 24 hours
+
+6. CONFIDENTIALITY
+Both parties agree to maintain the confidentiality of any proprietary or sensitive information disclosed by the other party, except as required by law or with prior written consent.
+
+7. LIABILITY AND INDEMNIFICATION
+a) Neither party shall be liable for indirect, incidental, special, or consequential damages arising out of this Agreement.
+b) The Service Provider's total liability under this Agreement shall not exceed the fees paid by the Client in the twelve (12) months preceding the claim.
+c) The Client shall indemnify and hold harmless the Service Provider from any claims arising from the Client's use of the Services in violation of applicable law.
+
+8. TERMINATION
+a) Either party may terminate this Agreement for cause if the other party materially breaches this Agreement and fails to cure such breach within thirty (30) days of written notice.
+b) The Client may terminate this Agreement for convenience upon ninety (90) days' written notice.
+c) Upon termination, the Service Provider shall provide the Client with all data in a standard format within thirty (30) days.
+
+9. RENEWAL AND RATE ADJUSTMENTS
+a) This Agreement shall automatically renew unless either party provides written notice of non-renewal at least ninety (90) days prior to expiration.
+b) Upon renewal, the Service Provider may increase fees by up to 5% annually, with thirty (30) days' written notice.
+
+10. GOVERNING LAW
+This Agreement shall be governed by and construed in accordance with the laws of the State of New York, without regard to its conflict of laws principles.
+
+11. ENTIRE AGREEMENT
+This Agreement, together with any exhibits attached hereto, constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, and agreements.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above.
+
+CLOUDSOLUTIONS CORP.
+
+By: _____________________________
+Name: Michael Chen
+Title: Vice President of Sales
+Date: July 1, 2026
+
+RETAILCHAIN INC.
+
+By: _____________________________
+Name: Patricia Williams
+Title: Chief Information Officer
+Date: July 1, 2026
