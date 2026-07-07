@@ -6,7 +6,7 @@ from ai_analyzer import AIAnalyzer
 from database import SessionLocal, User, Document, get_db
 from sqlalchemy.orm import Session
 
-# BUILD VERSION: 2026-07-07_v4.0 - FINAL NUCLEAR UI
+# BUILD VERSION: 2026-07-07_v5.0 - ABSOLUTE UI FIDELITY
 
 st.set_page_config(
     page_title="Contract Analyzer AI",
@@ -38,7 +38,7 @@ nuclear_css = """
     }
     
     .stApp {
-        background-color: #0a1f16 !important;
+        background-color: #05170f !important;
         color: #eafff3 !important;
         font-family: 'Inter', sans-serif !important;
     }
@@ -49,14 +49,14 @@ nuclear_css = """
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-        background: #0a1f16;
+        background: #05170f;
     }
 
     .nuclear-left {
-        width: 35%;
-        background: linear-gradient(135deg, #0a1f16 0%, #0d2818 100%);
-        border-right: 1px solid rgba(52,217,128,0.15);
-        padding: 60px 50px;
+        width: 420px;
+        background: linear-gradient(180deg, #08201548 0%, #05170f 100%), #071f14;
+        border-right: 1px solid rgba(255,255,255,0.08);
+        padding: 40px;
         display: flex;
         flex-direction: column;
         z-index: 100;
@@ -65,7 +65,7 @@ nuclear_css = """
 
     .nuclear-right {
         flex: 1;
-        background: linear-gradient(135deg, #0a1f16 0%, #0d2818 100%);
+        background: linear-gradient(180deg, #04140d 0%, #061a11 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -78,285 +78,157 @@ nuclear_css = """
         position: absolute;
         border-radius: 50%;
         pointer-events: none;
-        filter: blur(1px);
     }
     .orb-1 {
-        width: 800px; height: 800px;
-        right: -300px; top: -300px;
-        background: radial-gradient(circle at 35% 30%, rgba(52,217,128,0.4), rgba(15,107,69,0.1) 50%, transparent 70%);
-        box-shadow: 0 0 200px rgba(52,217,128,0.3);
+        width: 620px; height: 620px;
+        right: -180px; top: -220px;
+        background: radial-gradient(circle at 35% 30%, rgba(52,217,128,0.55), rgba(15,107,69,0.15) 60%, transparent 75%);
     }
     .orb-2 {
-        width: 600px; height: 600px;
-        right: 100px; top: 150px;
-        border: 2px solid rgba(52,217,128,0.2);
-        background: radial-gradient(circle at 30% 25%, rgba(23,167,95,0.3), transparent 60%);
-        box-shadow: inset 0 0 100px rgba(52,217,128,0.2), 0 0 150px rgba(52,217,128,0.15);
+        width: 420px; height: 420px;
+        right: -40px; top: 40px;
+        border: 1px solid rgba(52,217,128,0.35);
+        background: radial-gradient(circle at 30% 25%, rgba(23,167,95,0.55), transparent 70%);
     }
     .orb-3 {
-        width: 400px; height: 400px;
-        right: 300px; top: 250px;
-        border: 1px solid rgba(52,217,128,0.15);
-        box-shadow: 0 0 80px rgba(52,217,128,0.1);
+        width: 260px; height: 260px;
+        right: 210px; top: 210px;
+        border: 1px solid rgba(52,217,128,0.28);
     }
     .orb-4 {
-        width: 200px; height: 200px;
-        left: 100px; bottom: 150px;
-        border: 1px solid rgba(52,217,128,0.1);
-        background: radial-gradient(circle at 35% 30%, rgba(23,167,95,0.15), transparent 60%);
-        box-shadow: 0 0 60px rgba(52,217,128,0.08);
+        width: 130px; height: 130px;
+        left: 60px; bottom: 90px;
+        border: 1px solid rgba(52,217,128,0.22);
+        background: radial-gradient(circle at 35% 30%, rgba(23,167,95,0.25), transparent 70%);
     }
 
     /* 5. DESIGN TOKENS */
     .logo-v2 {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 22px;
+        gap: 10px;
+        font-size: 20px;
         font-weight: 800;
         color: #fff;
-        margin-bottom: 80px;
-    }
-    .logo-v2 svg {
-        width: 28px;
-        height: 28px;
+        margin-bottom: 56px;
     }
 
-    .auth-heading {
-        font-size: 13px;
-        font-weight: 600;
-        color: #7a9d8f;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        margin: 0 0 24px;
-    }
-
-    .tabs {
-        display: flex;
-        gap: 8px;
-        background: transparent;
-        margin-bottom: 40px;
-    }
-    .tab {
-        flex: 1;
-        text-align: center;
-        padding: 12px 0;
-        font-size: 14px;
-        font-weight: 600;
-        color: #7a9d8f;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all .2s ease;
-        user-select: none;
-        background: transparent;
-        border: 1px solid rgba(52,217,128,0.2);
-    }
-    .tab.active {
-        background: linear-gradient(135deg, #34d980, #2bc970);
-        color: #0a1f16;
-        border-color: #34d980;
-        box-shadow: 0 8px 24px rgba(52,217,128,0.3);
-    }
-
-    .field {
-        margin-bottom: 24px;
-    }
-    .field label {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: #7a9d8f;
-        margin-bottom: 10px;
-        text-transform: capitalize;
-    }
-    .field input {
-        width: 100%;
-        background: rgba(52,217,128,0.05);
-        border: 1px solid rgba(52,217,128,0.2);
-        border-radius: 12px;
-        padding: 14px 16px;
-        font-size: 14px;
-        font-family: 'Inter', sans-serif;
-        color: #eafff3;
-        outline: none;
-        transition: all .2s ease;
-    }
-    .field input::placeholder {
-        color: rgba(122,157,143,0.5);
-    }
-    .field input:focus {
-        border-color: #34d980;
-        background: rgba(52,217,128,0.08);
-        box-shadow: 0 0 20px rgba(52,217,128,0.15);
-    }
-
-    .btn-login {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        background: linear-gradient(135deg, #34d980, #2bc970);
-        color: #0a1f16;
-        font-weight: 700;
-        font-size: 15px;
-        padding: 14px 0;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        box-shadow: 0 12px 32px rgba(52,217,128,0.35);
-        margin-top: 12px;
-        font-family: 'Inter', sans-serif;
-        transition: all .2s ease;
-    }
-    .btn-login:hover {
-        filter: brightness(1.08);
-        box-shadow: 0 16px 40px rgba(52,217,128,0.4);
-        transform: translateY(-2px);
-    }
-
-    .auth-foot {
-        margin-top: auto;
-        padding-top: 40px;
-        font-size: 12px;
-        color: #7a9d8f;
-        opacity: 0.8;
-        line-height: 1.8;
-    }
-    .auth-foot a {
-        color: #34d980;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color .2s ease;
-    }
-    .auth-foot a:hover {
-        color: #2bc970;
-    }
-
-    /* HERO SECTION */
     .hero-v2 {
         text-align: center;
-        max-width: 700px;
+        max-width: 720px;
         z-index: 10;
-        position: relative;
+        padding: 60px;
     }
 
     .pill-v2 {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
         color: #34d980;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        background: rgba(52,217,128,0.1);
-        border: 1px solid rgba(52,217,128,0.3);
-        padding: 8px 16px;
+        letter-spacing: 0.08em;
+        background: rgba(52,217,128,0.08);
+        border: 1px solid rgba(52,217,128,0.25);
+        padding: 7px 14px;
         border-radius: 999px;
-        margin-bottom: 40px;
+        margin-bottom: 26px;
     }
     .pill-v2::before {
         content: '';
-        width: 6px;
-        height: 6px;
+        width: 6px; height: 6px;
         border-radius: 50%;
         background: #34d980;
-        box-shadow: 0 0 12px #34d980;
+        box-shadow: 0 0 8px #22c76e;
     }
 
     h1.v2-title {
-        font-size: 56px;
+        font-size: clamp(30px, 3.4vw, 44px);
         font-weight: 800;
-        line-height: 1.15;
-        letter-spacing: -0.02em;
-        margin: 0 0 24px;
+        line-height: 1.18;
+        letter-spacing: -0.01em;
+        margin: 0 0 22px;
         color: #fff;
     }
 
     h1.v2-title span {
-        background: linear-gradient(135deg, #34d980, #2bc970);
+        background: linear-gradient(180deg, #34d980, #17a75f);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
     .hero-v2 p {
-        font-size: 16px;
-        line-height: 1.8;
-        color: #a8c9bc;
-        max-width: 600px;
+        font-size: 16.5px;
+        line-height: 1.7;
+        color: #b6d9c6;
+        max-width: 560px;
         margin: 0 auto;
     }
 
-    /* 6. STREAMLIT WIDGET OVERRIDES */
+    /* 6. WIDGET OVERRIDES */
     .stButton button {
         width: 100% !important;
-        background: linear-gradient(135deg, #34d980, #2bc970) !important;
-        color: #0a1f16 !important;
+        background: linear-gradient(180deg, #34d980, #17a75f) !important;
+        color: #04170e !important;
         font-weight: 700 !important;
         font-size: 15px !important;
         padding: 14px 0 !important;
         border: none !important;
-        border-radius: 12px !important;
-        box-shadow: 0 12px 32px rgba(52,217,128,0.35) !important;
-        transition: all .2s ease !important;
+        border-radius: 10px !important;
+        box-shadow: 0 10px 24px -8px rgba(34,199,110,0.55) !important;
+        transition: filter .15s ease !important;
     }
     .stButton button:hover {
-        filter: brightness(1.08) !important;
-        box-shadow: 0 16px 40px rgba(52,217,128,0.4) !important;
-        transform: translateY(-2px) !important;
+        filter: brightness(1.05) !important;
     }
 
     div[data-baseweb="input"] {
-        background-color: rgba(52,217,128,0.05) !important;
-        border: 1px solid rgba(52,217,128,0.2) !important;
-        border-radius: 12px !important;
-        transition: all .2s ease !important;
+        background-color: rgba(255,255,255,0.04) !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: 10px !important;
+        transition: border-color .15s ease, background .15s ease !important;
     }
     div[data-baseweb="input"]:focus-within {
         border-color: #34d980 !important;
-        background-color: rgba(52,217,128,0.08) !important;
-        box-shadow: 0 0 20px rgba(52,217,128,0.15) !important;
+        background-color: rgba(52,217,128,0.06) !important;
     }
 
     input {
-        color: #eafff3 !important;
-        font-size: 14px !important;
-    }
-    input::placeholder {
-        color: rgba(122,157,143,0.5) !important;
+        color: white !important;
+        font-size: 14.5px !important;
     }
 
     /* Radio tabs styling */
     div[data-testid="stRadio"] > div {
         display: flex !important;
-        gap: 8px !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        margin-bottom: 40px !important;
+        gap: 4px !important;
+        background: rgba(255,255,255,0.04) !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: 12px !important;
+        padding: 4px !important;
+        margin-bottom: 30px !important;
     }
     div[data-testid="stRadio"] label {
         flex: 1 !important;
         text-align: center !important;
-        padding: 12px 0 !important;
+        padding: 10px 0 !important;
         font-size: 14px !important;
         font-weight: 600 !important;
-        color: #7a9d8f !important;
-        border-radius: 12px !important;
+        color: #b6d9c6 !important;
+        border-radius: 9px !important;
         cursor: pointer !important;
-        transition: all .2s ease !important;
+        transition: all .15s ease !important;
         background: transparent !important;
-        border: 1px solid rgba(52,217,128,0.2) !important;
+        border: none !important;
         display: block !important;
     }
     div[data-testid="stRadio"] label[data-selected="true"] {
-        background: linear-gradient(135deg, #34d980, #2bc970) !important;
-        color: #0a1f16 !important;
-        border-color: #34d980 !important;
-        box-shadow: 0 8px 24px rgba(52,217,128,0.3) !important;
+        background: linear-gradient(180deg, #34d980, #17a75f) !important;
+        color: #04170e !important;
     }
+    /* Hide radio dots */
     div[data-testid="stRadio"] input {
         display: none !important;
     }
@@ -366,20 +238,35 @@ nuclear_css = """
         flex: 1 !important;
     }
 
-    /* Error/Success messages */
-    .stAlert {
-        background: rgba(52,217,128,0.1) !important;
-        border: 1px solid rgba(52,217,128,0.3) !important;
-        border-radius: 12px !important;
+    .auth-foot {
+        margin-top: auto;
+        padding-top: 30px;
+        font-size: 12.5px;
+        color: #b6d9c6;
+        opacity: 0.65;
+        line-height: 1.6;
+    }
+    .auth-foot a { color: #34d980; text-decoration: none; }
+
+    /* Waves SVG */
+    .waves {
+        position: absolute;
+        left: 20px; bottom: 30px;
+        width: 320px; height: 100px;
+        pointer-events: none;
     }
 
-    /* Collapse button styling */
-    .stButton[data-testid="baseButton-secondary"] button {
-        background: transparent !important;
-        color: #34d980 !important;
-        border: 1px solid rgba(52,217,128,0.3) !important;
+    /* Version Marker */
+    .version-marker {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        font-size: 10px;
+        color: rgba(255,255,255,0.1);
+        z-index: 999;
     }
 </style>
+<div class="version-marker">v5.0_ABS_FIDELITY</div>
 """
 
 # --- Auth Functions ---
@@ -413,10 +300,10 @@ if not st.session_state["logged_in"]:
     <div class="nuclear-auth-container">
         <div class="nuclear-left">
             <div class="logo-v2">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 3v18l8-5 8 5V3a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1z" fill="url(#grad)"/>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 3v18l8-5 8 5V3a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1z" fill="url(#g)"/>
                     <defs>
-                        <linearGradient id="grad" x1="4" y1="2" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="g" x1="4" y1="2" x2="20" y2="21" gradientUnits="userSpaceOnUse">
                             <stop stop-color="#34d980"/>
                             <stop offset="1" stop-color="#0f6b45"/>
                         </linearGradient>
@@ -424,11 +311,10 @@ if not st.session_state["logged_in"]:
                 </svg>
                 Contract Analyzer
             </div>
+            <div style="font-size: 14px; font-weight: 600; color: #b6d9c6; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 18px;">Login / Register</div>
             
-            <div class="auth-heading">Login / Register</div>
-            
-            <!-- Auth form anchor -->
-            <div id="auth-anchor" style="flex: 1; display: flex; flex-direction: column;"></div>
+            <!-- Auth form placeholder -->
+            <div id="auth-anchor" style="height: 400px;"></div>
 
             <div class="auth-foot">
                 By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
@@ -439,11 +325,17 @@ if not st.session_state["logged_in"]:
             <div class="orb orb-2"></div>
             <div class="orb orb-3"></div>
             <div class="orb orb-4"></div>
+            
+            <svg class="waves" viewBox="0 0 320 100" fill="none">
+                <path d="M0 80 C 60 40, 120 100, 180 60 S 300 20, 320 50" stroke="rgba(52,217,128,0.35)" stroke-width="1.5"/>
+                <path d="M0 92 C 60 55, 120 110, 180 72 S 300 32, 320 62" stroke="rgba(52,217,128,0.22)" stroke-width="1.5"/>
+                <path d="M0 100 C 60 68, 120 118, 180 84 S 300 44, 320 74" stroke="rgba(52,217,128,0.14)" stroke-width="1.5"/>
+            </svg>
 
             <div class="hero-v2">
                 <div class="pill-v2">AI-Powered</div>
                 <h1 class="v2-title">Welcome to the <span>Contract & Legal<br>Document Risk Analyzer</span></h1>
-                <p>Upload any agreement and we'll flag termination windows, auto-renewals, and liability exposure in seconds.</p>
+                <p>Please login or register to continue. Once you're in, upload any agreement and we'll flag termination windows, auto-renewals, and liability exposure in seconds.</p>
             </div>
         </div>
     </div>
@@ -451,15 +343,15 @@ if not st.session_state["logged_in"]:
 
     # Place Streamlit widgets
     with st.container():
-        st.markdown('<div style="position: absolute; top: 200px; left: 50px; width: calc(35% - 100px); z-index: 101;">', unsafe_allow_html=True)
+        st.markdown('<div style="position: absolute; top: 155px; left: 40px; width: 340px; z-index: 101;">', unsafe_allow_html=True)
         
         mode = st.radio("Mode", ["Login", "Register"], label_visibility="collapsed")
         
         if mode == "Login":
             u = st.text_input("Username", key="u_login", placeholder="Enter your username")
             p = st.text_input("Password", type="password", key="p_login", placeholder="Enter your password")
-            st.markdown('<div style="margin-top: 8px;">', unsafe_allow_html=True)
-            if st.button("Login", use_container_width=True):
+            st.markdown('<div style="margin-top: 10px;">', unsafe_allow_html=True)
+            if st.button("Login"):
                 if authenticate_user(u, p):
                     st.rerun()
                 else:
@@ -468,8 +360,8 @@ if not st.session_state["logged_in"]:
         else:
             u = st.text_input("Username", key="u_reg", placeholder="Choose a username")
             p = st.text_input("Password", type="password", key="p_reg", placeholder="Choose a password")
-            st.markdown('<div style="margin-top: 8px;">', unsafe_allow_html=True)
-            if st.button("Create Account", use_container_width=True):
+            st.markdown('<div style="margin-top: 10px;">', unsafe_allow_html=True)
+            if st.button("Create Account"):
                 if register_user(u, p):
                     st.success("Account created!")
                 else:
