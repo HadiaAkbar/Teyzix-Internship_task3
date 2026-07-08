@@ -39,6 +39,8 @@ class DocumentOut(BaseModel):
     status: str
     uploaded_at: dt.datetime
     processed_at: Optional[dt.datetime] = None
+    risk_level: Optional[str] = "N/A"
+    summary: Optional[str] = "No summary available"
 
     class Config:
         from_attributes = True

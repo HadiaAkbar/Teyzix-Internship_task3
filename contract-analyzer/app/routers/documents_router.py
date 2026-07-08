@@ -22,17 +22,39 @@ async def upload_document(
     current_user: User = Depends(get_current_user),
 ):
     contents = await file.read()
-    ok, msg = validate_file(file.filename, len(contents), settings.MAX_UPLOAD_MB,
+    
+    # 1. Improved Validation
+    ok, msg = validate_file(file.filename, contents, settings.MAX_UPLOAD_MB,
                              settings.ALLOWED_EXTENSIONS)
     if not ok:
         raise HTTPException(status_code=400, detail=msg)
 
+    # 2. Duplicate Check (Basic: same filename and size for same user today)
+    # This is a simple heuristic to prevent accidental double uploads
+    existing = db.query(Document).filter(
+        Document.owner_id == current_user.id,
+        Document.filename == file.filename,
+        Document.status != DocumentStatus.FAILED
+    ).first()
+    
+    if existing:
+        # Check if the file on disk is the same size to be sure
+        if os.path.exists(existing.stored_path) and os.path.getsize(existing.stored_path) == len(contents):
+             # Return existing if it's already analyzed, or allow re-upload if it failed
+             return existing
+
+    # 3. Secure Storage
     ext = os.path.splitext(file.filename)[1].lower()
     stored_name = f"{uuid.uuid4().hex}{ext}"
     stored_path = os.path.join(settings.UPLOAD_DIR, stored_name)
-    with open(stored_path, "wb") as f:
-        f.write(contents)
+    
+    try:
+        with open(stored_path, "wb") as f:
+            f.write(contents)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
+    # 4. Persistence
     document = Document(
         owner_id=current_user.id,
         filename=file.filename,
@@ -43,8 +65,9 @@ async def upload_document(
     db.add(document)
     db.commit()
     db.refresh(document)
+    
     db.add(AuditLog(user_id=current_user.id, action="upload",
-                     detail=f"Uploaded {file.filename}"))
+                     detail=f"Uploaded {file.filename} (ID: {document.id})"))
     db.commit()
     return document
 
@@ -72,20 +95,36 @@ def analyze_document(document_id: int, db: Session = Depends(get_db),
     doc = _get_owned_document(document_id, db, current_user)
 
     try:
-        if not doc.raw_text:
-            doc.raw_text = extract_text(doc.stored_path, doc.file_type)
         doc.status = DocumentStatus.PROCESSING
         db.commit()
 
-        if not doc.raw_text.strip():
-            raise ValueError("No extractable text found in document")
+        # 1. Robust Extraction
+        if not doc.raw_text:
+            try:
+                extracted = extract_text(doc.stored_path, doc.file_type)
+                if not extracted or not extracted.strip():
+                    raise ValueError("Document appears to be empty or contains no extractable text")
+                doc.raw_text = extracted
+                db.commit()
+            except Exception as e:
+                doc.status = DocumentStatus.FAILED
+                db.commit()
+                raise HTTPException(status_code=422, detail=f"Text extraction failed: {str(e)}")
 
-        # chunk + persist for semantic search
+        # 2. Chunking for Search
         if not doc.chunks:
-            for i, chunk in enumerate(chunk_text(doc.raw_text)):
+            chunks = chunk_text(doc.raw_text)
+            for i, chunk in enumerate(chunks):
                 db.add(DocumentChunk(document_id=doc.id, chunk_index=i, text=chunk))
+            db.commit()
 
-        result = run_analysis(doc.raw_text)
+        # 3. Analysis Execution
+        try:
+            result = run_analysis(doc.raw_text)
+        except Exception as e:
+            doc.status = DocumentStatus.FAILED
+            db.commit()
+            raise HTTPException(status_code=502, detail=f"AI Analysis engine error: {str(e)}")
 
         # upsert analysis
         existing = db.query(Analysis).filter(Analysis.document_id == doc.id).first()

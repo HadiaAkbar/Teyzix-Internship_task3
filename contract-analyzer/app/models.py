@@ -52,6 +52,23 @@ class Document(Base):
     risks = relationship("RiskFinding", back_populates="document", cascade="all, delete-orphan")
     chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
 
+    @property
+    def risk_level(self):
+        if not self.analysis:
+            return "N/A"
+        score = self.analysis.risk_score
+        if score >= 7.0:
+            return "High"
+        elif score >= 4.0:
+            return "Medium"
+        return "Low"
+
+    @property
+    def summary(self):
+        if not self.analysis or not self.analysis.executive_summary:
+            return "No summary available"
+        return self.analysis.executive_summary[:150] + "..." if len(self.analysis.executive_summary) > 150 else self.analysis.executive_summary
+
 
 class Analysis(Base):
     __tablename__ = "analyses"
