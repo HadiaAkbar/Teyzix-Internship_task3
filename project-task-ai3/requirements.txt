@@ -3,7 +3,7 @@ langchain-google-genai
 langchain-text-splitters
 langchain-classic
 google-generativeai
-PyPDF2
+pypdf
 python-docx
 sqlalchemy
 reportlab

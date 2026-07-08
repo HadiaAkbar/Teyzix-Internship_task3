@@ -1,6 +1,6 @@
 import io
 import os
-import PyPDF2
+import pypdf
 from docx import Document as DocxDocument
 from typing import List, Tuple, Any
 
@@ -16,7 +16,7 @@ def read_file(path: str) -> str:
         elif ext == ".pdf":
             text: str = ""
             with open(path, "rb") as f:
-                reader: PyPDF2.PdfReader = PyPDF2.PdfReader(f)
+                reader: pypdf.PdfReader = pypdf.PdfReader(f)
                 for page in reader.pages:
                     extracted: str = page.extract_text()
                     if extracted:
@@ -31,11 +31,11 @@ def read_file(path: str) -> str:
                 full_text.append(para.text)
             return "\n".join(full_text)
         else:
-            raise ValueError(f"Unsupported file type: \'{ext}\'. I can only read .txt, .pdf, and .docx! 🚫")
+            raise ValueError(f"Unsupported file type: '{ext}'. I can only read .txt, .pdf, and .docx! 🚫")
     except FileNotFoundError:
-        raise RuntimeError(f"File not found: \'{path}\'. Please check the path! 🧐")
+        raise RuntimeError(f"File not found: '{path}'. Please check the path! 🧐")
     except Exception as e:
-        raise RuntimeError(f"Could not read file \'{path}\': {e} 💔")
+        raise RuntimeError(f"Could not read file '{path}': {e} 💔")
 
 def generate_txt_bytes(text: str) -> bytes:
     return text.encode("utf-8")
