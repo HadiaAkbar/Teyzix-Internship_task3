@@ -16,6 +16,32 @@ risk reports.
 ## Link
 https://contract-risk-analyzer-jlftip4wgq5fnpiazyedmt.streamlit.app/
 
+## ⚠️ Important: Fixing the 502 Error on Streamlit Cloud
+
+The app currently shows a **502 Server Error** because:
+- Streamlit Cloud only hosts the **frontend** (UI)
+- The **backend** (FastAPI API) must be deployed separately
+- They need to communicate via HTTP
+
+**Quick Fix: Deploy the backend to Render.com (Free)**
+
+1. Go to https://render.com and sign up (free tier)
+2. Click "New +" → "Web Service"
+3. Connect your GitHub repository
+4. Use these settings:
+   - Root Directory: `contract-analyzer`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
+5. Deploy and copy the service URL (e.g., `https://contract-analyzer-api.render.com`)
+6. Go to https://share.streamlit.io → select your app → "Settings" → "Secrets"
+7. Add this line:
+   ```toml
+   API_URL = "https://contract-analyzer-api.render.com"
+   ```
+8. Refresh the Streamlit app — login should now work!
+
+**See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.**
+
 ## Architecture
 
 ```
