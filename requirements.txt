@@ -1,0 +1,11 @@
+streamlit==1.31.1
+langchain-google-genai
+langchain-text-splitters
+langchain-classic
+google-generativeai
+pypdf
+python-docx
+sqlalchemy
+reportlab
+pydantic>=2.7.4
+python-dotenv
