@@ -1,3 +1,4 @@
+# VERSION: 1.0.1 - CACHE BUST
 import io
 import os
 import pypdf
