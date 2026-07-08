@@ -20,28 +20,42 @@ def auth_headers():
 
 LOGIN_CSS = """
 <style>
+    * {box-sizing: border-box;}
+    html, body {margin: 0; padding: 0;}
+    
     #MainMenu, header, footer {visibility: hidden;}
     .block-container {padding: 0 !important; max-width: 100% !important;}
-    .stApp {background: #061109;}
+    .stApp {background: #061109; margin: 0; padding: 0;}
 
+    /* Main horizontal container */
     [data-testid="stHorizontalBlock"] {
         gap: 0 !important;
         align-items: stretch !important;
+        height: 100vh;
+        margin: 0 !important;
+        padding: 0 !important;
     }
+    
     [data-testid="stHorizontalBlock"] > div[data-testid="column"] {
         min-height: 100vh;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    /* Left panel (form) — targeted via marker so column order never matters */
+    /* Left panel (form) */
     div[data-testid="column"]:has(> div .login-marker) {
         background: #071309;
-        padding: 3.5rem 3.5rem 2rem 3.5rem;
+        padding: 2rem 2rem !important;
         border-right: 1px solid rgba(52, 211, 153, 0.08);
-        flex: 0 0 40% !important;
-        max-width: 40% !important;
+        flex: 0 0 45% !important;
+        max-width: 45% !important;
+        overflow-y: auto;
     }
+    
     div[data-testid="column"]:has(> div .login-marker) [data-testid="stVerticalBlock"] {
-        max-width: 420px;
+        max-width: 100%;
+        width: 100%;
     }
 
     /* Right panel (hero) */
@@ -51,93 +65,323 @@ LOGIN_CSS = """
             radial-gradient(circle at 60% 55%, rgba(34,197,94,0.20) 0%, rgba(34,197,94,0.0) 45%),
             radial-gradient(circle at 18% 78%, rgba(16,120,80,0.35) 0%, rgba(16,120,80,0.0) 30%),
             linear-gradient(160deg, #04140b 0%, #0a2416 55%, #0f2f1c 100%);
-        padding: 0 4.5rem;
+        padding: 2rem 3rem !important;
         display: flex !important;
         flex-direction: column;
         justify-content: center;
         position: relative;
         overflow: hidden;
-        flex: 1 1 60% !important;
+        flex: 1 1 55% !important;
     }
+    
     div[data-testid="column"]:has(> div .hero-marker) [data-testid="stVerticalBlock"] {
         justify-content: center;
+        width: 100%;
     }
 
-    .logo-row {display:flex; align-items:center; gap:0.65rem; margin-bottom:2.5rem;}
-    .logo-row .flag {
-        display:flex; align-items:center; justify-content:center;
-        width:40px; height:40px; border-radius:8px;
-        background: rgba(52,211,153,0.12);
+    /* Logo row */
+    .logo-row {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 2rem;
+        flex-wrap: nowrap;
     }
-    .logo-row .brand {color:#f5f7f6; font-size:1.5rem; font-weight:700;}
+    
+    .logo-row .flag {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(52, 211, 153, 0.12);
+        flex-shrink: 0;
+    }
+    
+    .logo-row .brand {
+        color: #f5f7f6;
+        font-size: 1.3rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
 
     .section-label {
-        color:#6ee7b7; letter-spacing:2px; font-size:0.78rem; font-weight:700;
-        margin-bottom:0.9rem; text-transform:uppercase;
+        color: #6ee7b7;
+        letter-spacing: 2px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
     }
 
     .ai-badge {
-        display:inline-flex; align-items:center; gap:0.5rem;
-        background: rgba(52,211,153,0.10);
-        border: 1px solid rgba(52,211,153,0.35);
-        color:#4ade80; font-weight:700; font-size:0.85rem;
-        padding:0.45rem 1rem; border-radius:999px; margin-bottom:2rem;
-        letter-spacing:1px; width:fit-content;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(52, 211, 153, 0.10);
+        border: 1px solid rgba(52, 211, 153, 0.35);
+        color: #4ade80;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        margin-bottom: 1.5rem;
+        letter-spacing: 1px;
+        width: fit-content;
     }
-    .ai-badge .dot {width:7px; height:7px; border-radius:50%; background:#4ade80; flex-shrink:0;}
+    
+    .ai-badge .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4ade80;
+        flex-shrink: 0;
+    }
 
     .hero-title {
-        color:#f5f7f6; font-size:clamp(1.8rem, 3vw, 3rem); font-weight:800; line-height:1.2;
-        margin-bottom:1.5rem; max-width:900px;
+        color: #f5f7f6;
+        font-size: clamp(1.5rem, 4vw, 2.8rem);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1.2rem;
+        max-width: 100%;
+        word-wrap: break-word;
     }
-    .hero-title .accent {color:#4ade80;}
+    
+    .hero-title .accent {
+        color: #4ade80;
+    }
 
     .hero-sub {
-        color:#b9c4bd; font-size:1.1rem; line-height:1.7; max-width:640px;
+        color: #b9c4bd;
+        font-size: clamp(0.95rem, 2vw, 1.1rem);
+        line-height: 1.6;
+        max-width: 100%;
+        margin-bottom: 2rem;
     }
 
-    .waves {margin-top:2.5rem; opacity:0.5;}
+    .waves {
+        margin-top: 1.5rem;
+        opacity: 0.5;
+        max-width: 100%;
+        height: auto;
+    }
 
-    /* Pill tabs */
-    .stTabs {margin-bottom:0.5rem;}
+    /* Tabs - Responsive */
+    .stTabs {
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+    
     .stTabs [data-baseweb="tab-list"] {
-        background:#0d1a13 !important; border-radius:10px; padding:5px; gap:4px;
-        width:100%; display:flex; border-bottom:none !important;
+        background: #0d1a13 !important;
+        border-radius: 10px;
+        padding: 5px;
+        gap: 8px !important;
+        width: 100% !important;
+        display: flex !important;
+        border-bottom: none !important;
+        flex-wrap: wrap !important;
     }
+    
     .stTabs [data-baseweb="tab"] {
-        background:transparent; border-radius:8px !important; color:#9ca3af;
-        font-weight:600; padding:12px 0 !important; flex:1 1 0 !important;
-        justify-content:center; display:flex; margin:0 !important; min-height:44px; align-items:center;
+        background: transparent;
+        border-radius: 8px !important;
+        color: #9ca3af;
+        font-weight: 600;
+        padding: 12px 16px !important;
+        flex: 1 1 0 !important;
+        justify-content: center;
+        display: flex !important;
+        align-items: center;
+        margin: 0 !important;
+        min-height: 44px;
+        font-size: 1rem;
+        white-space: nowrap;
+        border: 1px solid transparent !important;
     }
+    
     .stTabs [aria-selected="true"] {
-        background:#34d399 !important; color:#04140b !important;
+        background: #34d399 !important;
+        color: #04140b !important;
     }
-    .stTabs [data-baseweb="tab-highlight"] {display:none !important;}
-    .stTabs [data-baseweb="tab-border"] {display:none !important;}
-    .stTabs [data-testid="stMarkdownContainer"] p {font-weight:inherit;}
+    
+    .stTabs [data-baseweb="tab-highlight"] {
+        display: none !important;
+    }
+    
+    .stTabs [data-baseweb="tab-border"] {
+        display: none !important;
+    }
+    
+    .stTabs [data-testid="stMarkdownContainer"] p {
+        font-weight: inherit;
+        margin: 0;
+    }
 
-    /* Inputs */
-    .stTextInput > label {color:#d1d5db !important; font-weight:600; font-size:0.9rem;}
+    /* Input fields - Responsive */
+    .stTextInput {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .stTextInput > label {
+        color: #d1d5db !important;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
     .stTextInput input {
-        background:#0d1a13 !important; color:#f5f7f6 !important;
-        border:1px solid rgba(52,211,153,0.15) !important; border-radius:8px !important;
-        padding:0.85rem 1rem !important; min-height:44px;
+        background: #0d1a13 !important;
+        color: #f5f7f6 !important;
+        border: 1px solid rgba(52, 211, 153, 0.15) !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1rem !important;
+        width: 100% !important;
+        font-size: 1rem;
+        min-height: 44px;
+        box-sizing: border-box;
     }
-    .stTextInput input:focus {border:1px solid #34d399 !important; box-shadow:none !important;}
-    .stTextInput input::placeholder {color:#5b6660;}
+    
+    .stTextInput input:focus {
+        border: 1px solid #34d399 !important;
+        box-shadow: none !important;
+    }
+    
+    .stTextInput input::placeholder {
+        color: #5b6660;
+    }
 
-    /* Buttons */
-    div[data-testid="stButton"] {width:100%;}
+    /* Buttons - Responsive */
+    div[data-testid="stButton"] {
+        width: 100%;
+        margin-bottom: 0.75rem;
+    }
+    
     .stButton button {
-        background:#34d399; color:#04140b; border:none; border-radius:8px;
-        font-weight:700; padding:0.9rem 0; width:100% !important; margin-top:0.5rem;
-        transition:background 0.15s ease; min-height:44px;
+        background: #34d399;
+        color: #04140b;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        padding: 1rem !important;
+        width: 100% !important;
+        min-height: 48px;
+        transition: background 0.15s ease;
+        font-size: 1.1rem;
+        cursor: pointer;
+        box-sizing: border-box;
+        display: block !important;
     }
-    .stButton button:hover {background:#22c55e; color:#04140b;}
-    .stButton button p {color:#04140b !important; font-weight:700;}
+    
+    .stButton button:hover {
+        background: #22c55e;
+        color: #04140b;
+    }
+    
+    .stButton button p {
+        color: #04140b !important;
+        font-weight: 700;
+        margin: 0;
+    }
 
-    .fine-print {color:#7c8a83; font-size:0.85rem; margin-top:1.5rem; line-height:1.6;}
-    .fine-print a {color:#4ade80; text-decoration:none;}
+    /* Fine print */
+    .fine-print {
+        color: #7c8a83;
+        font-size: 0.8rem;
+        margin-top: 1.5rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+    
+    .fine-print a {
+        color: #4ade80;
+        text-decoration: none;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 1024px) {
+        [data-testid="stHorizontalBlock"] {
+            flex-direction: column;
+            height: auto;
+        }
+        
+        div[data-testid="column"]:has(> div .login-marker) {
+            flex: 0 0 auto !important;
+            max-width: 100% !important;
+            border-right: none;
+            border-bottom: 1px solid rgba(52, 211, 153, 0.08);
+            padding: 2rem 1.5rem !important;
+        }
+        
+        div[data-testid="column"]:has(> div .hero-marker) {
+            flex: 1 1 auto !important;
+            min-height: 50vh;
+            padding: 2rem 1.5rem !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        div[data-testid="column"]:has(> div .login-marker) {
+            padding: 1.5rem 1rem !important;
+        }
+        
+        div[data-testid="column"]:has(> div .hero-marker) {
+            padding: 1.5rem 1rem !important;
+        }
+        
+        .logo-row .brand {
+            font-size: 1.1rem;
+        }
+        
+        .hero-title {
+            font-size: clamp(1.3rem, 3vw, 2.2rem);
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            padding: 8px 6px !important;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        div[data-testid="column"]:has(> div .login-marker) {
+            padding: 1rem 0.75rem !important;
+        }
+        
+        div[data-testid="column"]:has(> div .hero-marker) {
+            padding: 1rem 0.75rem !important;
+            min-height: 40vh;
+        }
+        
+        .logo-row {
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-row .brand {
+            font-size: 1rem;
+        }
+        
+        .hero-title {
+            font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+            margin-bottom: 1rem;
+        }
+        
+        .hero-sub {
+            font-size: 0.9rem;
+        }
+        
+        .stTextInput input {
+            padding: 0.7rem 0.8rem !important;
+        }
+        
+        .stButton button {
+            padding: 0.75rem 0.8rem !important;
+        }
+    }
 </style>
 """
 
@@ -145,7 +389,7 @@ LOGIN_CSS = """
 def login_view():
     st.markdown(LOGIN_CSS, unsafe_allow_html=True)
 
-    left, right = st.columns([1, 2], gap="small")
+    left, right = st.columns([1.2, 1.5], gap="medium")
 
     with left:
         st.markdown(
@@ -153,7 +397,7 @@ def login_view():
             <div class="login-marker"></div>
             <div class="logo-row">
                 <span class="flag">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" fill="#34d399"/>
                     </svg>
                 </span>
@@ -214,7 +458,7 @@ def login_view():
                 Please login or register to continue. Once you're in, upload any agreement
                 and we'll flag termination windows, auto-renewals, and liability exposure in seconds.
             </div>
-            <svg class="waves" width="420" height="90" viewBox="0 0 420 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="waves" width="100%" height="90" viewBox="0 0 420 90" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 70 Q60 30 140 70 T280 70 T420 70" stroke="#2f5c40" stroke-width="1.5" opacity="0.6"/>
                 <path d="M0 82 Q60 42 140 82 T280 82 T420 82" stroke="#2f5c40" stroke-width="1.5" opacity="0.4"/>
             </svg>
