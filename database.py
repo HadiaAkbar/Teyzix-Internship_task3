@@ -1,6 +1,10 @@
+import os
+import datetime
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Float, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
-import datetime
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, 'contracts.db')
 
 Base = declarative_base()
 
@@ -48,7 +52,7 @@ class Document(Base):
     
     user = relationship("User", back_populates="documents")
 
-engine = create_engine('sqlite:///contracts.db')
+engine = create_engine(f'sqlite:///{db_path}')
 Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(bind=engine)
 

@@ -21,25 +21,32 @@ if "logged_in" not in st.session_state:
 
 # --- Auth Functions ---
 def authenticate_user(username, password):
-    db: Session = next(get_db())
-    user = db.query(User).filter(User.username == username).first()
-    if user and user.password_hash == password:
-        st.session_state["logged_in"] = True
-        st.session_state["username"] = username
-        st.session_state["user_id"] = user.id
-        st.session_state["user_role"] = user.role
-        return True
+    try:
+        db: Session = next(get_db())
+        user = db.query(User).filter(User.username == username).first()
+        if user and user.password_hash == password:
+            st.session_state["logged_in"] = True
+            st.session_state["username"] = username
+            st.session_state["user_id"] = user.id
+            st.session_state["user_role"] = user.role
+            return True
+    except Exception as e:
+        st.error(f"Database error: {e}")
     return False
 
 def register_user(username, password):
-    db: Session = next(get_db())
-    if db.query(User).filter(User.username == username).first():
-        return False
-    new_user = User(username=username, password_hash=password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return True
+    try:
+        db: Session = next(get_db())
+        if db.query(User).filter(User.username == username).first():
+            return False
+        new_user = User(username=username, password_hash=password)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return True
+    except Exception as e:
+        st.error(f"Database error: {e}")
+    return False
 
 
 # --- CSS: turns the two st.columns into the fixed-width auth panel + hero layout ---

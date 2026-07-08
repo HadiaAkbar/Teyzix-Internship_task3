@@ -8,3 +8,4 @@ python-docx
 sqlalchemy
 reportlab
 pydantic>=2.7.4
+python-dotenv
