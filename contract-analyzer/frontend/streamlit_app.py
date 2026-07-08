@@ -450,7 +450,6 @@ def login_view():
         st.markdown(
             """
             <div class="hero-marker"></div>
-            <div class="ai-badge"><span class="dot"></span> AI-POWERED</div>
             <div class="hero-title">
                 Welcome to the <span class="accent">Contract &amp; Legal Document Risk Analyzer</span>
             </div>
