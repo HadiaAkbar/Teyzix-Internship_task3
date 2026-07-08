@@ -536,121 +536,249 @@ DASHBOARD_CSS = """
     }
 
     /* ===== SIDEBAR STYLING ===== */
+    /* Animations for sidebar */
+    @keyframes sidebarGlow {
+        0%, 100% { box-shadow: 0 0 20px rgba(52, 211, 153, 0.15), inset 0 0 15px rgba(52, 211, 153, 0.05); }
+        50% { box-shadow: 0 0 40px rgba(52, 211, 153, 0.25), inset 0 0 20px rgba(52, 211, 153, 0.08); }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes navItemPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+
     [data-testid="stSidebar"] {
-        background: linear-gradient(135deg, #0d1a13 0%, #061109 100%) !important;
+        background: linear-gradient(135deg, #0a1410 0%, #051008 100%) !important;
         background-image: 
-            radial-gradient(circle 200px at 20% 30%, rgba(52, 211, 153, 0.1) 0%, transparent 50%),
-            radial-gradient(circle 150px at 80% 70%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
-            linear-gradient(135deg, #0d1a13 0%, #061109 100%) !important;
-        border-right: 2px solid rgba(52, 211, 153, 0.25) !important;
+            /* Gradient overlays */
+            linear-gradient(180deg, rgba(52, 211, 153, 0.08) 0%, transparent 50%),
+            /* Animated glow circles */
+            radial-gradient(circle 250px at 20% 30%, rgba(52, 211, 153, 0.12) 0%, transparent 50%),
+            radial-gradient(circle 180px at 80% 70%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+            /* Dot pattern */
+            radial-gradient(circle 2px at 15% 15%, rgba(52, 211, 153, 0.2) 0%, transparent 2px),
+            radial-gradient(circle 2px at 85% 25%, rgba(34, 197, 94, 0.15) 0%, transparent 2px),
+            radial-gradient(circle 2px at 25% 75%, rgba(52, 211, 153, 0.15) 0%, transparent 2px),
+            radial-gradient(circle 2px at 75% 85%, rgba(34, 197, 94, 0.12) 0%, transparent 2px),
+            linear-gradient(135deg, #0a1410 0%, #051008 100%) !important;
+        border-right: 3px solid rgba(52, 211, 153, 0.3) !important;
+        box-shadow: inset -20px 0 40px rgba(52, 211, 153, 0.05);
+        animation: slideInLeft 0.6s ease-out;
     }
 
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         background: transparent !important;
+        padding-top: 0.5rem !important;
     }
 
-    /* Sidebar title - User name */
+    /* Sidebar title - User name with enhanced styling */
     [data-testid="stSidebar"] h1 {
-        background: radial-gradient(circle at 30% 30%, rgba(52, 211, 153, 0.15), rgba(52, 211, 153, 0.02)) !important;
-        padding: 1.5rem !important;
-        border-radius: 20px !important;
-        border: 2px solid rgba(52, 211, 153, 0.3) !important;
-        margin-bottom: 1rem !important;
-        font-size: 1.5rem !important;
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(52, 211, 153, 0.08) 100%) !important;
+        padding: 1.75rem !important;
+        border-radius: 18px !important;
+        border: 2px solid rgba(52, 211, 153, 0.4) !important;
+        margin-bottom: 1.25rem !important;
+        margin-top: 0.5rem !important;
+        font-size: 1.6rem !important;
         font-weight: 900 !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 15px rgba(52, 211, 153, 0.1) !important;
+        box-shadow: 0 8px 24px rgba(52, 211, 153, 0.15), inset 0 0 20px rgba(52, 211, 153, 0.08) !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        position: relative;
+        overflow: hidden;
+        animation: slideInLeft 0.7s ease-out;
     }
 
-    /* Sidebar caption - Role badge */
+    [data-testid="stSidebar"] h1::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    [data-testid="stSidebar"] h1:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(52, 211, 153, 0.25), inset 0 0 20px rgba(52, 211, 153, 0.12) !important;
+        border-color: rgba(52, 211, 153, 0.6) !important;
+    }
+
+    /* Sidebar caption - Role badge with enhanced styling */
     [data-testid="stSidebar"] .stCaption {
-        background: rgba(52, 211, 153, 0.1) !important;
-        padding: 0.75rem 1rem !important;
-        border-radius: 12px !important;
-        border: 2px solid rgba(52, 211, 153, 0.25) !important;
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.15) 0%, rgba(52, 211, 153, 0.05) 100%) !important;
+        padding: 0.85rem 1.25rem !important;
+        border-radius: 14px !important;
+        border: 2px solid rgba(52, 211, 153, 0.35) !important;
         color: #6ee7b7 !important;
-        font-weight: 700 !important;
-        margin-bottom: 1.5rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 1.75rem !important;
         display: inline-block !important;
         text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        font-size: 0.75rem !important;
-        box-shadow: 0 2px 8px rgba(52, 211, 153, 0.1) !important;
+        letter-spacing: 1.5px !important;
+        font-size: 0.8rem !important;
+        box-shadow: 0 4px 12px rgba(52, 211, 153, 0.12), inset 0 0 10px rgba(52, 211, 153, 0.05) !important;
+        transition: all 0.3s ease !important;
+        animation: slideInLeft 0.8s ease-out;
     }
 
-    /* Logout button styling */
+    [data-testid="stSidebar"] .stCaption:hover {
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(52, 211, 153, 0.08) 100%) !important;
+        box-shadow: 0 6px 16px rgba(52, 211, 153, 0.18), inset 0 0 12px rgba(52, 211, 153, 0.08) !important;
+        border-color: rgba(52, 211, 153, 0.5) !important;
+    }
+
+    /* Logout button styling - Enhanced with gradient and animations */
     [data-testid="stSidebar"] .stButton button {
         background: linear-gradient(135deg, #34d399 0%, #22c55e 100%) !important;
         color: #04140b !important;
         border: 2px solid #34d399 !important;
         border-radius: 14px !important;
-        height: 48px !important;
+        height: 52px !important;
         font-weight: 800 !important;
-        font-size: 1rem !important;
+        font-size: 1.05rem !important;
         width: 100% !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(52, 211, 153, 0.2) !important;
-        margin-bottom: 2rem !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        box-shadow: 0 6px 20px rgba(52, 211, 153, 0.25), inset 0 0 10px rgba(255, 255, 255, 0.1) !important;
+        margin-bottom: 2.5rem !important;
         text-transform: uppercase !important;
-        letter-spacing: 1px !important;
+        letter-spacing: 1.2px !important;
+        position: relative;
+        overflow: hidden;
+        animation: slideInLeft 0.9s ease-out;
+    }
+
+    [data-testid="stSidebar"] .stButton button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    [data-testid="stSidebar"] .stButton button:hover::before {
+        left: 100%;
     }
 
     [data-testid="stSidebar"] .stButton button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 25px rgba(52, 211, 153, 0.3) !important;
+        transform: translateY(-4px) scale(1.02) !important;
+        box-shadow: 0 12px 32px rgba(52, 211, 153, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.15) !important;
         background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+        border-color: #16a34a !important;
     }
 
-    /* Navigation label */
+    [data-testid="stSidebar"] .stButton button:active {
+        transform: translateY(-2px) scale(0.98) !important;
+    }
+
+    /* Navigation label - Enhanced styling */
     [data-testid="stSidebar"] label {
         color: #a7b5ad !important;
-        font-weight: 700 !important;
-        font-size: 0.9rem !important;
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
         text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        margin-bottom: 1rem !important;
+        letter-spacing: 1.5px !important;
+        margin-bottom: 1.25rem !important;
+        margin-top: 0.5rem !important;
         display: block !important;
+        border-left: 4px solid rgba(52, 211, 153, 0.4) !important;
+        padding-left: 12px !important;
+        animation: slideInLeft 1s ease-out;
     }
 
     /* Radio button container */
     [data-testid="stSidebar"] [role="radiogroup"] {
         background: transparent !important;
+        gap: 0.5rem !important;
     }
 
-    /* Individual radio option styling */
+    /* Individual radio option styling - Enhanced with animations */
     [data-testid="stSidebar"] .stRadio > label {
-        background: rgba(52, 211, 153, 0.05) !important;
-        padding: 0.75rem 1rem !important;
-        border-radius: 12px !important;
-        border: 2px solid rgba(52, 211, 153, 0.15) !important;
-        margin-bottom: 0.75rem !important;
-        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.08) 0%, rgba(52, 211, 153, 0.03) 100%) !important;
+        padding: 0.9rem 1.2rem !important;
+        border-radius: 14px !important;
+        border: 2px solid rgba(52, 211, 153, 0.2) !important;
+        margin-bottom: 0.85rem !important;
+        transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
         color: #a7b5ad !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        position: relative;
+        overflow: hidden;
+        animation: slideInLeft calc(1s + 0.1s) ease-out;
+    }
+
+    [data-testid="stSidebar"] .stRadio > label::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
     [data-testid="stSidebar"] .stRadio > label:hover {
-        background: rgba(52, 211, 153, 0.12) !important;
-        border-color: rgba(52, 211, 153, 0.35) !important;
-        box-shadow: 0 4px 12px rgba(52, 211, 153, 0.1) !important;
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.15) 0%, rgba(52, 211, 153, 0.08) 100%) !important;
+        border-color: rgba(52, 211, 153, 0.45) !important;
+        box-shadow: 0 6px 16px rgba(52, 211, 153, 0.12) !important;
+        transform: translateX(4px) !important;
+        color: #34d399 !important;
     }
 
-    /* Selected radio option - Active page */
+    [data-testid="stSidebar"] .stRadio > label:hover::before {
+        opacity: 1;
+    }
+
+    /* Selected radio option - Active page with enhanced styling */
     [data-testid="stSidebar"] .stRadio > label[data-selected="true"] {
-        background: radial-gradient(circle at 30% 30%, rgba(52, 211, 153, 0.25), rgba(52, 211, 153, 0.05)) !important;
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.3) 0%, rgba(52, 211, 153, 0.12) 100%) !important;
         border: 2px solid #34d399 !important;
         color: #34d399 !important;
-        box-shadow: 0 4px 15px rgba(52, 211, 153, 0.2) !important;
-        font-weight: 800 !important;
+        box-shadow: 0 8px 24px rgba(52, 211, 153, 0.25), inset 0 0 15px rgba(52, 211, 153, 0.1) !important;
+        font-weight: 900 !important;
+        transform: translateX(6px) !important;
+        animation: navItemPulse 2s ease-in-out infinite;
     }
 
-    /* Divider styling */
+    [data-testid="stSidebar"] .stRadio > label[data-selected="true"]::before {
+        opacity: 1;
+    }
+
+    /* Divider styling - Enhanced */
     [data-testid="stSidebar"] hr {
-        border-color: rgba(52, 211, 153, 0.2) !important;
-        margin: 1.5rem 0 !important;
+        border: none !important;
+        height: 2px !important;
+        background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent) !important;
+        margin: 1.75rem 0 !important;
+        box-shadow: 0 2px 8px rgba(52, 211, 153, 0.1) !important;
     }
 </style>
 """
