@@ -7,315 +7,135 @@ try:
 except Exception:
     API_URL = "http://localhost:8000"
 
-st.set_page_config(page_title="Contract Risk Analyzer", page_icon="⚖️", layout="wide")
+st.set_page_config(page_title="Contract Risk Analyzer", layout="wide", initial_sidebar_state="collapsed")
 
 if "token" not in st.session_state:
     st.session_state.token = None
     st.session_state.user = None
 
 
-# ────────────────────────────────────────────────────────────────────────────
-# THEME
-# ────────────────────────────────────────────────────────────────────────────
-def inject_theme():
-    st.markdown(
-        """
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-        <style>
-        :root{
-            --bg: #05170f;
-            --bg-2: #071f14;
-            --green-1: #0f6b45;
-            --green-2: #17a75f;
-            --green-3: #34d980;
-            --green-glow: #22c76e;
-            --text: #eafff3;
-            --text-soft: #b6d9c6;
-            --line: rgba(255,255,255,0.08);
-            --panel: #0a2318;
-        }
-
-        html, body, [class*="css"]  { font-family: 'Inter', sans-serif; }
-
-        .stApp{
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        #MainMenu, footer, header[data-testid="stHeader"] { background: transparent; }
-        header[data-testid="stHeader"] { background: var(--bg); }
-
-        .block-container{
-            padding-top: 2rem;
-            padding-bottom: 3rem;
-        }
-
-        /* Headings */
-        h1, h2, h3, h4, h5, h6 { color: #ffffff !important; font-weight: 800 !important; }
-        p, span, label, .stMarkdown, .stCaption { color: var(--text-soft); }
-
-        /* ===== Sidebar ===== */
-        section[data-testid="stSidebar"]{
-            background: linear-gradient(180deg, #08201548 0%, #05170f 100%), var(--bg-2);
-            border-right: 1px solid var(--line);
-        }
-        section[data-testid="stSidebar"] h1,
-        section[data-testid="stSidebar"] h2,
-        section[data-testid="stSidebar"] h3{
-            color: #fff !important;
-        }
-        section[data-testid="stSidebar"] .stCaption, section[data-testid="stSidebar"] p{
-            color: var(--text-soft) !important;
-        }
-
-        /* Sidebar radio nav styled like a menu */
-        section[data-testid="stSidebar"] div[data-testid="stRadio"] > div{
-            gap: 4px;
-        }
-        section[data-testid="stSidebar"] div[data-testid="stRadio"] label{
-            padding: 10px 14px !important;
-            border-radius: 10px;
-            border: 1px solid transparent;
-            transition: all .15s ease;
-        }
-        section[data-testid="stSidebar"] div[data-testid="stRadio"] label:hover{
-            background: rgba(255,255,255,0.04);
-            border-color: var(--line);
-        }
-        section[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] > div:first-child{
-            border-color: var(--green-3) !important;
-        }
-
-        /* ===== Text inputs / text areas / selects ===== */
-        div[data-testid="stTextInput"] input,
-        div[data-testid="stTextArea"] textarea,
-        div[data-baseweb="select"] > div,
-        div[data-testid="stNumberInput"] input{
-            background: rgba(255,255,255,0.04) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: 10px !important;
-            color: #fff !important;
-        }
-        div[data-testid="stTextInput"] input:focus,
-        div[data-testid="stTextArea"] textarea:focus{
-            border-color: var(--green-3) !important;
-            background: rgba(52,217,128,0.06) !important;
-        }
-        div[data-testid="stTextInput"] label,
-        div[data-testid="stTextArea"] label,
-        div[data-testid="stSelectbox"] label,
-        div[data-testid="stFileUploader"] label{
-            color: var(--text-soft) !important;
-            font-weight: 600 !important;
-            font-size: 13px !important;
-        }
-
-        /* ===== Buttons ===== */
-        .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button{
-            width: 100%;
-            background: linear-gradient(180deg, var(--green-3), var(--green-2));
-            color: #04170e !important;
-            font-weight: 700 !important;
-            border: none;
-            border-radius: 10px;
-            padding: 0.65rem 0;
-            box-shadow: 0 10px 24px -8px rgba(34,199,110,0.55);
-            transition: filter .15s ease;
-        }
-        .stButton > button:hover, .stDownloadButton > button:hover{
-            filter: brightness(1.08);
-            color: #04170e !important;
-        }
-        .stButton > button:active{
-            filter: brightness(0.95);
-        }
-
-        /* ===== Tabs ===== */
-        div[data-testid="stTabs"] div[role="tablist"]{
-            gap: 4px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 4px;
-        }
-        div[data-testid="stTabs"] button[role="tab"]{
-            border-radius: 9px;
-            color: var(--text-soft);
-            font-weight: 600;
-        }
-        div[data-testid="stTabs"] button[role="tab"][aria-selected="true"]{
-            background: linear-gradient(180deg, var(--green-3), var(--green-2));
-            color: #04170e !important;
-        }
-        div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] p{
-            color: #04170e !important;
-        }
-
-        /* ===== Metrics ===== */
-        div[data-testid="stMetric"]{
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 16px 18px;
-        }
-        div[data-testid="stMetricLabel"] { color: var(--text-soft) !important; }
-        div[data-testid="stMetricValue"] { color: var(--green-3) !important; }
-
-        /* ===== Expander ===== */
-        div[data-testid="stExpander"]{
-            background: var(--panel);
-            border: 1px solid var(--line) !important;
-            border-radius: 12px;
-        }
-
-        /* ===== File uploader ===== */
-        div[data-testid="stFileUploaderDropzone"]{
-            background: rgba(255,255,255,0.04);
-            border: 1px dashed var(--line) !important;
-            border-radius: 12px;
-        }
-
-        /* ===== Tables ===== */
-        div[data-testid="stTable"], .stDataFrame{
-            background: var(--panel);
-            border-radius: 12px;
-        }
-
-        /* ===== Alerts ===== */
-        div[data-testid="stAlert"]{
-            border-radius: 10px;
-            border: 1px solid var(--line);
-        }
-
-        hr{ border-color: var(--line) !important; }
-
-        /* ===== Auth screen specific ===== */
-        .auth-shell{
-            display:flex;
-            min-height: 100vh;
-            margin: -2rem -1rem -3rem -1rem;
-        }
-        .auth-logo{
-            display:flex; align-items:center; gap:10px;
-            font-size: 20px; font-weight:800; color:#fff;
-            margin-bottom: 30px;
-        }
-        .auth-heading{
-            font-size: 13px;
-            font-weight:600;
-            color: var(--text-soft);
-            text-transform:uppercase;
-            letter-spacing: 0.06em;
-            margin: 0 0 8px;
-        }
-        .auth-foot{
-            font-size: 12.5px;
-            color: var(--text-soft);
-            opacity:0.65;
-            line-height:1.6;
-            margin-top: 20px;
-        }
-        .auth-foot a{ color: var(--green-3); text-decoration:none; }
-
-        .hero-panel{
-            position:relative;
-            border-radius: 20px;
-            overflow:hidden;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            padding: 60px 40px;
-            min-height: 520px;
-            background: linear-gradient(180deg, #04140d 0%, #061a11 100%);
-            border: 1px solid var(--line);
-        }
-        .orb{ position:absolute; border-radius:50%; pointer-events:none; }
-        .orb-1{ width: 480px; height:480px; right: -160px; top: -160px;
-            background: radial-gradient(circle at 35% 30%, rgba(52,217,128,0.55), rgba(15,107,69,0.15) 60%, transparent 75%); }
-        .orb-2{ width: 320px; height:320px; right: -20px; top: 30px;
-            border: 1px solid rgba(52,217,128,0.35);
-            background: radial-gradient(circle at 30% 25%, rgba(23,167,95,0.55), transparent 70%); }
-        .orb-3{ width: 200px; height:200px; right: 160px; top: 160px;
-            border: 1px solid rgba(52,217,128,0.28); }
-        .orb-4{ width: 110px; height:110px; left: 40px; bottom: 60px;
-            border: 1px solid rgba(52,217,128,0.22);
-            background: radial-gradient(circle at 35% 30%, rgba(23,167,95,0.25), transparent 70%); }
-
-        .hero-copy{ position:relative; z-index:2; max-width: 520px; text-align:center; }
-        .eyebrow{
-            display:inline-flex; align-items:center; gap:8px;
-            font-size: 13px; font-weight:600; color: var(--green-3);
-            text-transform:uppercase; letter-spacing:0.08em;
-            background: rgba(52,217,128,0.08);
-            border: 1px solid rgba(52,217,128,0.25);
-            padding: 7px 14px; border-radius: 999px; margin-bottom: 22px;
-        }
-        .eyebrow::before{
-            content:''; width:6px; height:6px; border-radius:50%;
-            background: var(--green-3); box-shadow: 0 0 8px var(--green-glow);
-            display:inline-block;
-        }
-        .hero-copy h1{
-            font-size: clamp(24px, 2.6vw, 34px);
-            font-weight:800; line-height:1.2; letter-spacing:-0.01em;
-            margin: 0 0 18px; color:#fff;
-        }
-        .hero-copy h1 span{
-            background: linear-gradient(180deg, var(--green-3), var(--green-2));
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-        }
-        .hero-copy p{
-            font-size:15px; line-height:1.7; color: var(--text-soft);
-            max-width: 460px; margin: 0 auto;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-LOGO_SVG = """
-<div class="auth-logo">
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26">
-    <path d="M4 3v18l8-5 8 5V3a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1z" fill="url(#g)"/>
-    <defs>
-      <linearGradient id="g" x1="4" y1="2" x2="20" y2="21" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#34d980"/>
-        <stop offset="1" stop-color="#0f6b45"/>
-      </linearGradient>
-    </defs>
-  </svg>
-  Contract Analyzer
-</div>
-"""
-
-HERO_HTML = """
-<div class="hero-panel">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="orb orb-4"></div>
-  <div class="hero-copy">
-    <div class="eyebrow">AI-Powered</div>
-    <h1>Welcome to the <span>Contract &amp; Legal<br>Document Risk Analyzer</span></h1>
-    <p>Please login or register to continue. Once you're in, upload any agreement and we'll flag
-    termination windows, auto-renewals, and liability exposure in seconds.</p>
-  </div>
-</div>
-"""
-
-
 def auth_headers():
     return {"Authorization": f"Bearer {st.session_state.token}"}
 
 
+LOGIN_CSS = """
+<style>
+    #MainMenu, header, footer {visibility: hidden;}
+    .block-container {padding: 0 !important; max-width: 100% !important;}
+    .stApp {background: #061109;}
+
+    [data-testid="stHorizontalBlock"] {gap: 0;}
+
+    /* Left panel (form) */
+    div[data-testid="column"]:nth-of-type(1) {
+        background: #071309;
+        min-height: 100vh;
+        padding: 3.5rem 3rem 2rem 3rem;
+        border-right: 1px solid rgba(52, 211, 153, 0.08);
+    }
+
+    /* Right panel (hero) */
+    div[data-testid="column"]:nth-of-type(2) {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at 78% 15%, rgba(52,211,153,0.28) 0%, rgba(52,211,153,0.0) 42%),
+            radial-gradient(circle at 60% 55%, rgba(34,197,94,0.20) 0%, rgba(34,197,94,0.0) 45%),
+            radial-gradient(circle at 18% 78%, rgba(16,120,80,0.35) 0%, rgba(16,120,80,0.0) 30%),
+            linear-gradient(160deg, #04140b 0%, #0a2416 55%, #0f2f1c 100%);
+        padding: 5rem 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .logo-row {display:flex; align-items:center; gap:0.6rem; margin-bottom:2.5rem;}
+    .logo-row .flag {color:#34d399; font-size:1.6rem;}
+    .logo-row .brand {color:#f5f7f6; font-size:1.5rem; font-weight:700;}
+
+    .section-label {
+        color:#6ee7b7; letter-spacing:2px; font-size:0.78rem; font-weight:700;
+        margin-bottom:0.9rem; text-transform:uppercase;
+    }
+
+    .ai-badge {
+        display:inline-flex; align-items:center; gap:0.5rem;
+        background: rgba(52,211,153,0.10);
+        border: 1px solid rgba(52,211,153,0.35);
+        color:#4ade80; font-weight:700; font-size:0.85rem;
+        padding:0.45rem 1rem; border-radius:999px; margin-bottom:2rem;
+        letter-spacing:1px;
+    }
+    .ai-badge .dot {width:7px; height:7px; border-radius:50%; background:#4ade80;}
+
+    .hero-title {
+        color:#f5f7f6; font-size:2.9rem; font-weight:800; line-height:1.15;
+        margin-bottom:1.5rem;
+    }
+    .hero-title .accent {color:#4ade80;}
+
+    .hero-sub {
+        color:#b9c4bd; font-size:1.1rem; line-height:1.7; max-width:640px;
+    }
+
+    .waves {position:absolute; bottom:2.5rem; left:4rem; opacity:0.5;}
+
+    /* Pill tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        background:#0d1a13; border-radius:10px; padding:5px; gap:4px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background:transparent; border-radius:8px; color:#9ca3af;
+        font-weight:600; padding:10px 0; flex:1; justify-content:center;
+    }
+    .stTabs [aria-selected="true"] {
+        background:#34d399 !important; color:#04140b !important;
+    }
+    .stTabs [data-baseweb="tab-highlight"] {background:transparent;}
+    .stTabs [data-baseweb="tab-border"] {display:none;}
+
+    /* Inputs */
+    .stTextInput > label {color:#d1d5db !important; font-weight:600; font-size:0.9rem;}
+    .stTextInput input {
+        background:#0d1a13 !important; color:#f5f7f6 !important;
+        border:1px solid rgba(52,211,153,0.15) !important; border-radius:8px !important;
+        padding:0.7rem 0.9rem !important;
+    }
+    .stTextInput input:focus {border:1px solid #34d399 !important; box-shadow:none !important;}
+    .stTextInput input::placeholder {color:#5b6660;}
+
+    /* Buttons */
+    .stButton button {
+        background:#34d399; color:#04140b; border:none; border-radius:8px;
+        font-weight:700; padding:0.7rem 0; width:100%; margin-top:0.5rem;
+        transition:background 0.15s ease;
+    }
+    .stButton button:hover {background:#22c55e; color:#04140b;}
+
+    .login-title {color:#f5f7f6; font-size:1.6rem; font-weight:700; margin-bottom:2rem;}
+    .fine-print {color:#7c8a83; font-size:0.85rem; margin-top:1.5rem;}
+    .fine-print a {color:#4ade80; text-decoration:none;}
+</style>
+"""
+
+
 def login_view():
-    left, right = st.columns([1, 1.3], gap="large")
+    st.markdown(LOGIN_CSS, unsafe_allow_html=True)
+
+    left, right = st.columns([1, 1.4], gap="small")
 
     with left:
-        st.markdown(LOGO_SVG, unsafe_allow_html=True)
-        st.markdown('<p class="auth-heading">Login / Register</p>', unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="logo-row">
+                <span class="flag">🔖</span>
+                <span class="brand">Contract Analyzer</span>
+            </div>
+            <div class="section-label">Login / Register</div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         tab1, tab2 = st.tabs(["Login", "Register"])
 
@@ -334,11 +154,11 @@ def login_view():
                     st.error(r.json().get("detail", "Login failed"))
 
         with tab2:
-            name = st.text_input("Full Name", key="reg_name", placeholder="Enter your full name")
+            name = st.text_input("Full Name", placeholder="Enter your full name")
             email_r = st.text_input("Email", key="reg_email", placeholder="Enter your email")
             pw_r = st.text_input("Password", type="password", key="reg_pw",
                                   placeholder="Choose a password")
-            if st.button("Create account", key="reg_btn"):
+            if st.button("Register", key="register_btn"):
                 r = requests.post(f"{API_URL}/auth/register",
                                    json={"full_name": name, "email": email_r, "password": pw_r})
                 if r.status_code == 201:
@@ -347,27 +167,43 @@ def login_view():
                     st.error(r.json().get("detail", "Registration failed"))
 
         st.markdown(
-            '<div class="auth-foot">By continuing you agree to our '
-            '<a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</div>',
+            """
+            <div class="fine-print">
+                By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+            </div>
+            """,
             unsafe_allow_html=True,
         )
 
     with right:
-        st.markdown(HERO_HTML, unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="ai-badge"><span class="dot"></span> AI-POWERED</div>
+            <div class="hero-title">
+                Welcome to the <span class="accent">Contract &amp; Legal<br/>Document Risk Analyzer</span>
+            </div>
+            <div class="hero-sub">
+                Please login or register to continue. Once you're in, upload any agreement
+                and we'll flag termination windows, auto-renewals, and liability exposure in seconds.
+            </div>
+            <svg class="waves" width="420" height="90" viewBox="0 0 420 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 70 Q60 30 140 70 T280 70 T420 70" stroke="#2f5c40" stroke-width="1.5" opacity="0.6"/>
+                <path d="M0 82 Q60 42 140 82 T280 82 T420 82" stroke="#2f5c40" stroke-width="1.5" opacity="0.4"/>
+            </svg>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def main_app():
-    st.sidebar.markdown(LOGO_SVG, unsafe_allow_html=True)
-    st.sidebar.markdown(f"### 👋 {st.session_state.user['full_name']}")
+    st.sidebar.title(f"👋 {st.session_state.user['full_name']}")
     st.sidebar.caption(f"Role: {st.session_state.user['role']}")
     if st.sidebar.button("Logout"):
         st.session_state.token = None
         st.session_state.user = None
         st.rerun()
 
-    st.sidebar.markdown("---")
-    page = st.sidebar.radio("Navigate", ["Dashboard", "Upload & Analyze", "My Documents", "Search"],
-                             label_visibility="collapsed")
+    page = st.sidebar.radio("Navigate", ["Dashboard", "Upload & Analyze", "My Documents", "Search"])
 
     if page == "Dashboard":
         show_dashboard()
@@ -493,8 +329,6 @@ def render_analysis(a: dict):
     for action in a.get("recommended_actions") or []:
         st.write(f"- {action}")
 
-
-inject_theme()
 
 if st.session_state.token is None:
     login_view()
