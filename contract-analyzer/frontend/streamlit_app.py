@@ -27,6 +27,40 @@ LOGIN_CSS = """
     .block-container {padding: 0 !important; max-width: 100% !important;}
     .stApp {background: #061109; margin: 0; padding: 0;}
 
+    /* Animations */
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     /* Main horizontal container */
     [data-testid="stHorizontalBlock"] {
         gap: 0 !important;
@@ -43,7 +77,7 @@ LOGIN_CSS = """
         justify-content: center;
     }
 
-    /* Left panel (form) */
+    /* Left panel (form) - Card with animation */
     div[data-testid="column"]:has(> div .login-marker) {
         background: #071309;
         padding: 2rem 2rem !important;
@@ -51,14 +85,22 @@ LOGIN_CSS = """
         flex: 0 0 45% !important;
         max-width: 45% !important;
         overflow-y: auto;
+        animation: slideInLeft 0.8s ease-out;
     }
     
     div[data-testid="column"]:has(> div .login-marker) [data-testid="stVerticalBlock"] {
         max-width: 100%;
         width: 100%;
+        background: rgba(13, 26, 19, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(52, 211, 153, 0.15);
+        border-radius: 16px;
+        padding: 2.5rem !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(52, 211, 153, 0.1);
+        animation: fadeInUp 0.8s ease-out 0.1s both;
     }
 
-    /* Right panel (hero) */
+    /* Right panel (hero) - Card with animation */
     div[data-testid="column"]:has(> div .hero-marker) {
         background:
             radial-gradient(circle at 78% 15%, rgba(52,211,153,0.28) 0%, rgba(52,211,153,0.0) 42%),
@@ -72,11 +114,19 @@ LOGIN_CSS = """
         position: relative;
         overflow: hidden;
         flex: 1 1 55% !important;
+        animation: slideInRight 0.8s ease-out;
     }
     
     div[data-testid="column"]:has(> div .hero-marker) [data-testid="stVerticalBlock"] {
         justify-content: center;
         width: 100%;
+        background: rgba(4, 20, 11, 0.3);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(52, 211, 153, 0.1);
+        border-radius: 16px;
+        padding: 3rem !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(52, 211, 153, 0.08);
+        animation: fadeInUp 0.8s ease-out 0.2s both;
     }
 
     /* Logo row */
@@ -86,6 +136,7 @@ LOGIN_CSS = """
         gap: 0.65rem;
         margin-bottom: 2rem;
         flex-wrap: nowrap;
+        animation: fadeInUp 0.8s ease-out 0.3s both;
     }
     
     .logo-row .flag {
@@ -113,6 +164,7 @@ LOGIN_CSS = """
         font-weight: 700;
         margin-bottom: 1rem;
         text-transform: uppercase;
+        animation: fadeInUp 0.8s ease-out 0.35s both;
     }
 
     .ai-badge {
@@ -129,6 +181,7 @@ LOGIN_CSS = """
         margin-bottom: 1.5rem;
         letter-spacing: 1px;
         width: fit-content;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
     }
     
     .ai-badge .dot {
@@ -147,6 +200,7 @@ LOGIN_CSS = """
         margin-bottom: 1.2rem;
         max-width: 100%;
         word-wrap: break-word;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
     }
     
     .hero-title .accent {
@@ -159,6 +213,7 @@ LOGIN_CSS = """
         line-height: 1.6;
         max-width: 100%;
         margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease-out 0.5s both;
     }
 
     .waves {
@@ -166,6 +221,7 @@ LOGIN_CSS = """
         opacity: 0.5;
         max-width: 100%;
         height: auto;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
     }
 
     /* Tabs - Responsive */
