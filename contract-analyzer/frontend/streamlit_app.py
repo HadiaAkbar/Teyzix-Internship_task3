@@ -2,11 +2,23 @@ import streamlit as st
 import requests
 import math
 
-API_URL = st.secrets.get("API_URL", "http://127.0.0.1:8000") if hasattr(st, "secrets") else "http://127.0.0.1:8000"
-try:
-    API_URL = st.secrets["API_URL"]
-except Exception:
-    API_URL = "http://127.0.0.1:8000"
+import os
+
+# Determine API_URL based on environment
+# Priority: env var > streamlit secrets > docker service name > localhost
+API_URL = os.getenv("API_URL")
+if not API_URL:
+    try:
+        API_URL = st.secrets.get("API_URL", None)
+    except Exception:
+        API_URL = None
+
+if not API_URL:
+    # Check if running in Docker by looking for docker environment
+    if os.path.exists("/.dockerenv") or os.getenv("DOCKER_HOST"):
+        API_URL = "http://backend:8000"
+    else:
+        API_URL = "http://127.0.0.1:8000"
 
 st.set_page_config(page_title="Contract Risk Analyzer", layout="wide", initial_sidebar_state="expanded")
 
