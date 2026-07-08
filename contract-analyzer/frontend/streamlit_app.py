@@ -2,11 +2,11 @@ import streamlit as st
 import requests
 import math
 
-API_URL = st.secrets.get("API_URL", "https://8000-izjqnp2jwtj1fai483ja1-7ef183eb.us1.manus.computer") if hasattr(st, "secrets") else "https://8000-izjqnp2jwtj1fai483ja1-7ef183eb.us1.manus.computer"
+API_URL = st.secrets.get("API_URL", "http://127.0.0.1:8000") if hasattr(st, "secrets") else "http://127.0.0.1:8000"
 try:
     API_URL = st.secrets["API_URL"]
 except Exception:
-    API_URL = "https://8000-izjqnp2jwtj1fai483ja1-7ef183eb.us1.manus.computer"
+    API_URL = "http://127.0.0.1:8000"
 
 st.set_page_config(page_title="Contract Risk Analyzer", layout="wide", initial_sidebar_state="expanded")
 
