@@ -826,12 +826,22 @@ def login_view():
             if st.button("Login Now", key="login_btn"):
                 r = requests.post(f"{API_URL}/auth/login", json={"email": email, "password": password})
                 if r.status_code == 200:
-                    st.session_state.token = r.json()["access_token"]
-                    me = requests.get(f"{API_URL}/auth/me", headers=auth_headers()).json()
-                    st.session_state.user = me
-                    st.rerun()
+                    try:
+                        st.session_state.token = r.json()["access_token"]
+                        me_r = requests.get(f"{API_URL}/auth/me", headers=auth_headers())
+                        if me_r.status_code == 200:
+                            st.session_state.user = me_r.json()
+                            st.rerun()
+                        else:
+                            st.error("Failed to retrieve user profile after login.")
+                    except Exception:
+                        st.error("Login succeeded but returned invalid data format.")
                 else:
-                    st.error(r.json().get("detail", "Login failed"))
+                    try:
+                        err_detail = r.json().get("detail", "Login failed")
+                    except Exception:
+                        err_detail = f"Server Error (Status: {r.status_code})"
+                    st.error(err_detail)
 
         with tab2:
             name = st.text_input("Full Name", placeholder="John Doe")
@@ -844,7 +854,11 @@ def login_view():
                 if r.status_code == 201:
                     st.success("Registered! Please log in.")
                 else:
-                    st.error(r.json().get("detail", "Registration failed"))
+                    try:
+                        err_detail = r.json().get("detail", "Registration failed")
+                    except Exception:
+                        err_detail = f"Server Error (Status: {r.status_code})"
+                    st.error(err_detail)
 
         st.markdown(
             """
@@ -1015,13 +1029,24 @@ def show_upload():
                 # Step 2: Analyze
                 r_analyze = requests.post(f"{API_URL}/documents/{doc_id}/analyze", headers=auth_headers())
                 if r_analyze.status_code == 200:
-                    result = r_analyze.json()
-                    st.success("Document analyzed successfully!")
-                    st.json(result)
+                    try:
+                        result = r_analyze.json()
+                        st.success("Document analyzed successfully!")
+                        st.json(result)
+                    except Exception:
+                        st.error("Analysis succeeded but returned invalid data format.")
                 else:
-                    st.error(f"Analysis failed: {r_analyze.json().get('detail', 'Unknown error')}")
+                    try:
+                        err_detail = r_analyze.json().get('detail', 'Unknown error')
+                    except Exception:
+                        err_detail = f"Server Error (Status: {r_analyze.status_code})"
+                    st.error(f"Analysis failed: {err_detail}")
             else:
-                st.error(f"Upload failed: {r.json().get('detail', 'Unknown error')}")
+                try:
+                    err_detail = r.json().get('detail', 'Unknown error')
+                except Exception:
+                    err_detail = f"Server Error (Status: {r.status_code})"
+                st.error(f"Upload failed: {err_detail}")
 
 
 def show_documents():
