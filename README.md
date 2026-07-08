@@ -16,31 +16,36 @@ risk reports.
 ## Link
 https://contract-risk-analyzer-jlftip4wgq5fnpiazyedmt.streamlit.app/
 
-## ⚠️ Important: Fixing the 502 Error on Streamlit Cloud
+## ⚠️ Fixing the ConnectionError on Streamlit Cloud
 
-The app currently shows a **502 Server Error** because:
+**The Issue:**
+The app shows a `ConnectionError` because:
 - Streamlit Cloud only hosts the **frontend** (UI)
 - The **backend** (FastAPI API) must be deployed separately
-- They need to communicate via HTTP
+- The frontend can't find the backend to authenticate users
 
-**Quick Fix: Deploy the backend to Render.com (Free)**
+**✅ Quick Fix (5 minutes):**
 
-1. Go to https://render.com and sign up (free tier)
-2. Click "New +" → "Web Service"
-3. Connect your GitHub repository
-4. Use these settings:
-   - Root Directory: `contract-analyzer`
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
-5. Deploy and copy the service URL (e.g., `https://contract-analyzer-api.render.com`)
-6. Go to https://share.streamlit.io → select your app → "Settings" → "Secrets"
-7. Add this line:
+### Step 1: Deploy Backend to Render.com (Free)
+Run one of these:
+- **Linux/Mac**: `bash deploy-to-render.sh`
+- **Windows**: Double-click `deploy-to-render.bat`
+
+Or follow manual steps in [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### Step 2: Update Streamlit Secrets
+1. Go to https://share.streamlit.io/
+2. Select your app → **App settings** → **Secrets**
+3. Add this line (replace with your Render URL):
    ```toml
-   API_URL = "https://contract-analyzer-api.render.com"
+   API_URL = "https://your-render-service.render.com"
    ```
-8. Refresh the Streamlit app — login should now work!
+4. Click **Save**
 
-**See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.**
+### Step 3: Refresh the App
+Refresh the browser and try logging in. It should work now! 🎉
+
+**Need help?** See the detailed [DEPLOYMENT.md](DEPLOYMENT.md) guide.
 
 ## Architecture
 
