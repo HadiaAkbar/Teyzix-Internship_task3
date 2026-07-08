@@ -6,7 +6,7 @@ from ai_analyzer import AIAnalyzer
 from database import SessionLocal, User, Document, get_db
 from sqlalchemy.orm import Session
 
-# BUILD VERSION: 2026-07-07_v11.0 - NATIVE COLUMN LAYOUT
+# BUILD VERSION: 2026-07-08_v12.0 - STABLE CLOUD BUILD
 
 st.set_page_config(
     page_title="Contract Analyzer AI",
@@ -312,12 +312,13 @@ else:
     )
     with st.sidebar:
         st.title("Contract AI")
-        st.write(f"Logged in as: **{st.session_state['username']}**")
+        # Fixed syntax error in f-string
+        user_name = st.session_state.get('username', 'User')
+        user_role = st.session_state.get('user_role', 'user')
+        st.write(f"Logged in as: **{user_name}** ({user_role})")
         if st.button("Logout"):
             st.session_state["logged_in"] = False
             st.rerun()
 
     st.title("Document Analysis")
     st.write("Welcome to your AI-powered contract analysis workspace.")
-
-# Triggering fresh build on Streamlit Cloud - 2026-07-08
