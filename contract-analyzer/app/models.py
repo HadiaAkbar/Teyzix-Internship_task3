@@ -56,10 +56,10 @@ class Document(Base):
     def risk_level(self):
         if not self.analysis:
             return "N/A"
-        score = self.analysis.risk_score
-        if score >= 7.0:
+        score = self.analysis.risk_score  # 0-100 scale
+        if score >= 60:
             return "High"
-        elif score >= 4.0:
+        elif score >= 30:
             return "Medium"
         return "Low"
 
@@ -93,7 +93,9 @@ class Analysis(Base):
     recommended_actions = Column(JSON, nullable=True)
 
     risk_score = Column(Float, default=0.0)
+    compliance_score = Column(Float, default=0.0)  # NEW: Compliance score (0-100)
     engine_used = Column(String, default="rule_based")  # "llm" or "rule_based"
+    language_detected = Column(String, default="en")  # NEW: Language code (e.g., 'en', 'es', 'fr')
     created_at = Column(DateTime, default=dt.datetime.utcnow)
 
     document = relationship("Document", back_populates="analysis")
@@ -133,4 +135,28 @@ class AuditLog(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     action = Column(String, nullable=False)
     detail = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=dt.datetime.utcnow)
+
+
+class DocumentComparison(Base):
+    """NEW: Stores comparison results between two document versions."""
+    __tablename__ = "document_comparisons"
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id_1 = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    document_id_2 = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    comparison_result = Column(JSON, nullable=True)  # Stores diff analysis
+    created_at = Column(DateTime, default=dt.datetime.utcnow)
+
+
+class EmailReport(Base):
+    """NEW: Tracks email report delivery attempts."""
+    __tablename__ = "email_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    recipient_email = Column(String, nullable=False)
+    status = Column(String, default="pending")  # pending, sent, failed
+    sent_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=dt.datetime.utcnow)

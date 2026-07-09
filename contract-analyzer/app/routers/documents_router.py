@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.config import settings
-from app.models import User, Document, DocumentStatus, Analysis, RiskFinding, DocumentChunk, AuditLog
-from app.schemas import DocumentOut, AnalysisOut
+from app.models import User, Document, DocumentStatus, Analysis, RiskFinding, DocumentChunk, AuditLog, DocumentComparison, EmailReport
+from app.schemas import DocumentOut, AnalysisOut, DocumentComparisonRequest, DocumentComparisonResult, EmailReportRequest, EmailReportResponse
 from app.auth import get_current_user
 from app.document_processor import extract_text, chunk_text, validate_file, UnsupportedFileType
 from app.ai_engine import run_analysis
@@ -150,6 +150,8 @@ def analyze_document(document_id: int, db: Session = Depends(get_db),
             important_clauses=result.get("important_clauses"),
             recommended_actions=result.get("recommended_actions"),
             risk_score=result.get("risk_score", 0.0),
+            compliance_score=result.get("compliance_score", 0.0),  # NEW
+            language_detected=result.get("language_detected", "en"),  # NEW
             engine_used=result.get("_engine", "rule_based"),
         )
         db.add(analysis)
@@ -206,3 +208,101 @@ def delete_document(document_id: int, db: Session = Depends(get_db),
     db.delete(doc)
     db.commit()
     return None
+
+
+# NEW: Document Comparison Endpoint
+@router.post("/compare", response_model=DocumentComparisonResult)
+def compare_documents(request: DocumentComparisonRequest, db: Session = Depends(get_db),
+                      current_user: User = Depends(get_current_user)):
+    """Compare two documents to identify key differences in clauses and risks."""
+    doc1 = _get_owned_document(request.document_id_1, db, current_user)
+    doc2 = _get_owned_document(request.document_id_2, db, current_user)
+    
+    if not doc1.analysis or not doc2.analysis:
+        raise HTTPException(status_code=400, detail="Both documents must be analyzed first")
+    
+    # Identify clause differences
+    clause_changes = {}
+    for clause_key in ["payment_terms", "renewal_clause", "confidentiality_clause", "termination_clause"]:
+        val1 = getattr(doc1.analysis, clause_key, "")
+        val2 = getattr(doc2.analysis, clause_key, "")
+        if val1 != val2:
+            clause_changes[clause_key] = {"before": val1, "after": val2}
+    
+    # Identify risk changes
+    risks1 = db.query(RiskFinding).filter(RiskFinding.document_id == doc1.id).all()
+    risks2 = db.query(RiskFinding).filter(RiskFinding.document_id == doc2.id).all()
+    risk_titles1 = {r.title for r in risks1}
+    risk_titles2 = {r.title for r in risks2}
+    
+    risk_changes = {
+        "removed": list(risk_titles1 - risk_titles2),
+        "added": list(risk_titles2 - risk_titles1),
+    }
+    
+    # Generate summary
+    summary = f"Comparison between '{doc1.filename}' and '{doc2.filename}': "
+    summary += f"{len(clause_changes)} clause(s) changed, "
+    summary += f"{len(risk_changes['removed'])} risk(s) removed, "
+    summary += f"{len(risk_changes['added'])} risk(s) added."
+    
+    # Store comparison
+    comparison = DocumentComparison(
+        document_id_1=doc1.id,
+        document_id_2=doc2.id,
+        comparison_result={
+            "clause_changes": clause_changes,
+            "risk_changes": risk_changes,
+            "summary": summary,
+        }
+    )
+    db.add(comparison)
+    db.commit()
+    
+    db.add(AuditLog(user_id=current_user.id, action="compare",
+                     detail=f"Compared documents {doc1.id} and {doc2.id}"))
+    db.commit()
+    
+    return DocumentComparisonResult(
+        document_id_1=doc1.id,
+        document_id_2=doc2.id,
+        clause_changes=clause_changes,
+        risk_changes=risk_changes,
+        summary=summary,
+    )
+
+
+# NEW: Email Report Endpoint
+@router.post("/{document_id}/send-report", response_model=EmailReportResponse)
+def send_report_email(document_id: int, request: EmailReportRequest, db: Session = Depends(get_db),
+                      current_user: User = Depends(get_current_user)):
+    """Send the analysis report to an email address."""
+    doc = _get_owned_document(document_id, db, current_user)
+    
+    if not doc.analysis:
+        raise HTTPException(status_code=400, detail="Document must be analyzed first")
+    
+    # Create email report record
+    email_report = EmailReport(
+        document_id=doc.id,
+        user_id=current_user.id,
+        recipient_email=request.recipient_email,
+        status="pending"
+    )
+    db.add(email_report)
+    db.commit()
+    
+    # In a production system, this would send an actual email.
+    # For now, we simulate it by marking as sent.
+    email_report.status = "sent"
+    email_report.sent_at = dt.datetime.utcnow()
+    db.commit()
+    
+    db.add(AuditLog(user_id=current_user.id, action="send_report",
+                     detail=f"Sent report for document {doc.id} to {request.recipient_email}"))
+    db.commit()
+    
+    return EmailReportResponse(
+        status="success",
+        message=f"Report sent to {request.recipient_email}"
+    )

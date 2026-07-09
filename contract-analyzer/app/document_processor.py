@@ -1,6 +1,17 @@
 import os
 from pypdf import PdfReader
 import docx
+import warnings
+
+warnings.filterwarnings('ignore')
+
+# Try to import pytesseract for OCR support
+try:
+    import pytesseract
+    from PIL import Image
+    HAS_OCR = True
+except ImportError:
+    HAS_OCR = False
 
 
 class UnsupportedFileType(Exception):
@@ -25,12 +36,29 @@ def extract_text(file_path: str, file_type: str) -> str:
 
 
 def _extract_pdf(path: str) -> str:
+    """Extract text from PDF. NEW: Falls back to OCR if text extraction yields minimal content."""
     try:
         reader = PdfReader(path)
         text_parts = []
         for page in reader.pages:
             text_parts.append(page.extract_text() or "")
-        return "\n".join(text_parts).strip()
+        extracted_text = "\n".join(text_parts).strip()
+        
+        # NEW: If very little text extracted, attempt OCR
+        if len(extracted_text) < 100 and HAS_OCR:
+            try:
+                from pdf2image import convert_from_path
+                images = convert_from_path(path)
+                ocr_text = ""
+                for img in images:
+                    ocr_text += pytesseract.image_to_string(img) + "\n"
+                
+                if len(ocr_text) > len(extracted_text):
+                    extracted_text = ocr_text.strip()
+            except Exception:
+                pass  # OCR failed, use extracted text
+        
+        return extracted_text
     except Exception as e:
         raise Exception(f"PDF extraction error: {str(e)}")
 

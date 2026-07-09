@@ -13,8 +13,19 @@ an evidence snippet and a confidence score regardless of which engine produced i
 import json
 import re
 from typing import Optional
+import warnings
 
 from app.config import settings
+
+# Suppress warnings for optional dependencies
+warnings.filterwarnings('ignore')
+
+try:
+    from langdetect import detect, LangDetectException
+except ImportError:
+    LangDetectException = Exception
+    def detect(text):
+        return "en"  # Fallback to English if langdetect not available
 
 SYSTEM_PROMPT = """You are a legal-document analysis assistant. You extract structured
 information and flag risks in contracts. You are NOT a lawyer and your output is not legal
@@ -302,12 +313,68 @@ def compute_risk_score(risks: list) -> float:
     return round(min(100.0, (total / max_possible) * 100), 1) if max_possible else 0.0
 
 
+def compute_compliance_score(analysis_data: dict) -> float:
+    """NEW: Calculate compliance score based on presence of mandatory clauses and risk profile.
+    
+    Scoring logic:
+    - Start with 100 points
+    - Deduct for missing critical clauses (termination, confidentiality, payment terms)
+    - Deduct for high-severity risks
+    - Deduct for high-risk conditions
+    
+    Returns: float between 0-100
+    """
+    score = 100.0
+    
+    # Check for mandatory clauses
+    mandatory_clauses = [
+        ("termination_clause", 15),
+        ("confidentiality_clause", 10),
+        ("payment_terms", 15),
+    ]
+    
+    for clause_key, penalty in mandatory_clauses:
+        clause_text = analysis_data.get(clause_key, "")
+        if not clause_text or "Not clearly identified" in clause_text:
+            score -= penalty
+    
+    # Deduct for high-severity risks
+    risks = analysis_data.get("risks", [])
+    for risk in risks:
+        severity = risk.get("severity", "low")
+        confidence = risk.get("confidence", 0.0)
+        
+        if severity == "high":
+            score -= min(10, confidence * 10)
+        elif severity == "medium":
+            score -= min(5, confidence * 5)
+    
+    # Ensure score is within bounds
+    return max(0.0, min(100.0, round(score, 1)))
+
+
+def detect_language(text: str) -> str:
+    """NEW: Detect the language of the document.
+    
+    Returns: ISO 639-1 language code (e.g., 'en', 'es', 'fr')
+    """
+    try:
+        # Use first 500 characters for language detection
+        sample = text[:500] if len(text) > 500 else text
+        lang = detect(sample)
+        return lang
+    except Exception:
+        return "en"  # Default to English if detection fails
+
+
 def run_analysis(document_text: str) -> dict:
     """Main entry point: tries LLM, falls back to rules. Always returns full schema."""
     result = analyze_with_llm(document_text)
     if result is None:
         result = analyze_with_rules(document_text)
     result["risk_score"] = compute_risk_score(result.get("risks", []))
+    result["compliance_score"] = compute_compliance_score(result)  # NEW
+    result["language_detected"] = detect_language(document_text)  # NEW
     return result
 
 

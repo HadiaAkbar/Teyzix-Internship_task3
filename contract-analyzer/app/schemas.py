@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional, List, Dict, Any
 import datetime as dt
 
@@ -75,6 +75,8 @@ class AnalysisOut(BaseModel):
     important_clauses: Optional[List[str]]
     recommended_actions: Optional[List[str]]
     risk_score: float
+    compliance_score: float = 0.0  # NEW: Compliance score (0-100)
+    language_detected: str = "en"  # NEW: Detected language code
     engine_used: str
     risks: List[RiskFindingOut] = []
 
@@ -101,3 +103,33 @@ class DashboardStats(BaseModel):
     average_risk_score: float
     high_risk_documents: int
     frequently_detected_risks: List[Dict[str, Any]]
+    recent_documents: List[Dict[str, Any]] = []  # NEW: Recent analyzed documents
+
+
+# ---------- Document Comparison ----------
+class DocumentComparisonRequest(BaseModel):
+    """NEW: Request to compare two documents."""
+    document_id_1: int
+    document_id_2: int
+
+
+class DocumentComparisonResult(BaseModel):
+    """NEW: Result of document comparison."""
+    document_id_1: int
+    document_id_2: int
+    clause_changes: Dict[str, Any]
+    risk_changes: Dict[str, Any]
+    summary: str
+
+
+# ---------- Email Report ----------
+class EmailReportRequest(BaseModel):
+    """NEW: Request to send report via email."""
+    document_id: int
+    recipient_email: EmailStr
+
+
+class EmailReportResponse(BaseModel):
+    """NEW: Response for email report request."""
+    status: str
+    message: str
